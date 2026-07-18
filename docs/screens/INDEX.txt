@@ -1,0 +1,6 @@
+Tiny Day — screen exports (65 PNGs)
+Files are named by their canvas badge id (e.g. 3f = turn 3, option f).
+1x  = phase 1 foundations & core screens · 2x = onboarding · 3x = morning planning
+4x = "my day went wrong" · 5x = room & evening · 6x = plan/settings/edge states
+7x = notifications & widgets · 8x = tablet · 9x = dark mode · 10x = nav map, user flow, prototype
+Source of truth: Tiny Day.dc.html (live canvas with interactive prototype).
