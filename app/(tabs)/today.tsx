@@ -7,7 +7,7 @@ import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { PriorityChip } from '../../components/chips';
 import { Room } from '../../components/Room';
-import { useTheme } from '../../theme';
+import { useIsTablet, useTheme } from '../../theme';
 import { useSettings } from '../../lib/store/settings';
 import { tasksForDate, useTasks } from '../../lib/store/tasks';
 import { minToLabel, PRIORITY_GLYPH, Task, todayISO } from '../../lib/types';
@@ -25,6 +25,7 @@ function dateLabel(): string {
 
 export default function TodayScreen() {
   const t = useTheme();
+  const isTablet = useIsTablet();
   const router = useRouter();
   const toast = useToast();
   const name = useSettings((s) => s.name);
@@ -55,7 +56,7 @@ export default function TodayScreen() {
       <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{dateLabel()}</Text>
 
       <View style={{ marginTop: t.spacing.lg }}>
-        <Room completion={completion} height={170} />
+        <Room completion={completion} height={isTablet ? 240 : 170} />
       </View>
 
       {today.length === 0 && (
