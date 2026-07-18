@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+type BottomTabBarProps = { state: any; navigation: any; descriptors?: any; insets?: any };
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useTheme, MIN_TOUCH } from '../theme';
