@@ -74,29 +74,48 @@ build, expect ~10-15s instead: roughly 6.5s to download the 3.4MB dev bundle
 over adb and ~2.7s to evaluate it unminified. That cost is the dev server, not
 the app — a production bundle removes it entirely.
 
-## Known issue: production bundles on Expo SDK 57 / RN 0.86.0
+## Known issue: production bundles render blank
 
-Debug builds (Metro, `__DEV__` true) run correctly. Any build using a
-production bundle — `assembleRelease`, or a debug APK with
-`debuggableVariants = []` — renders a permanently blank screen. Narrowed down
-by bisecting the build inputs:
+Debug builds (Metro, `__DEV__` true) work. Every build using a production
+bundle renders a permanently blank screen. This was bisected against a minimal
+reproduction — `registerRootComponent` with a single stateful component, no
+router, no navigation, no animation library:
 
-| Bundle | Result |
+```jsx
+function Probe() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    setTimeout(() => console.log('TIMER FIRED'), 1000);   // never logs
+    setInterval(() => setN((x) => x + 1), 1000);          // never advances
+  }, []);
+  console.log('render n=' + n);                            // logs once, n=0
+  return <Text>TICK {n}</Text>;                            // never paints
+}
+```
+
+The bundle loads and executes, React renders and runs effects, and no exception
+reaches a global `ErrorUtils` handler — but no timer callback ever fires and
+nothing paints. Touch input does not revive it.
+
+Ruled out by bisection, each with a rebuilt APK:
+
+| Hypothesis | Result |
 |---|---|
-| `dev=true`, served by Metro | works |
-| `dev=false`, minified, embedded | blank |
-| `dev=false`, **not** minified, embedded | blank |
-| `dev=true`, embedded | redbox: devtools websocket unavailable |
+| Expo SDK 57 regression | also fails on SDK 56 / RN 0.85.3 |
+| App code | minimal 2-file router app fails |
+| expo-router | non-router `registerRootComponent` app fails |
+| Minification | fails unminified (`--minify false`) |
+| `react-native-reanimated` / worklets | fails after removing both |
+| Splash screen not hidden | fails with `hideAsync()` on mount |
+| APK signing / ProGuard | debug-signed embedded bundle fails; ProGuard disabled |
+| Screen off / backgrounding | fails with screen on and `stayon true` |
+| JSC instead of Hermes | not testable — worklets requires Hermes |
 
-So it is not minification, not APK signing, not ProGuard (disabled) and not the
-splash screen — it tracks `__DEV__` alone. In the failing builds the JS bundle
-loads and executes ("Running main" logs, no exception reaches a global
-`ErrorUtils` handler), and a trivial static component does render, but anything
-driven by state or timers never paints and `setTimeout` callbacks never fire —
-i.e. the JS scheduler does not pump. That points at the Hermes/RN release
-runtime on this stack rather than app code.
+What remains is the release JS runtime on this toolchain (Hermes bytecode
+precompilation is the leading suspect, since debug ships plain JS to the same
+device and works). Anything that depends on timers or state updates is affected,
+which is why the whole app is blank rather than partially broken.
 
-Until it is fixed upstream, run the app with `npx expo start` +
-`npx expo run:android`. Shipping a standalone APK needs a downgrade to the
-previous stable SDK, which is a deliberate trade-off (latest SDK vs. shippable
-release builds) rather than something to change silently.
+Until this is resolved, run the app with `npx expo start` +
+`npx expo run:android`. The snippet above is a self-contained repro suitable for
+an upstream bug report.
