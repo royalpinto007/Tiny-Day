@@ -33,9 +33,11 @@ export const lightColors = {
   toastText: '#F3EDE6',
   trackFill: '#E9E2D8',
   shadow: 'rgba(58,53,50,0.10)',
-} as const;
+};
 
-export const darkColors: typeof lightColors = {
+export type ThemeColors = { [K in keyof typeof lightColors]: string };
+
+export const darkColors: ThemeColors = {
   bg: '#26232A',
   surface: '#312D34',
   surfaceAlt: '#38333C',
@@ -68,9 +70,7 @@ export const darkColors: typeof lightColors = {
   toastText: '#26232A',
   trackFill: 'rgba(255,255,255,0.08)',
   shadow: 'rgba(0,0,0,0.35)',
-} as const;
-
-export type ThemeColors = typeof lightColors;
+};
 
 // 4px grid
 export const spacing = {
