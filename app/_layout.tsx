@@ -22,13 +22,21 @@ function AppStack() {
   const quietEndMin = useSettings((s) => s.quietEndMin);
   const privacyMode = useSettings((s) => s.privacyMode);
   const notificationsGranted = useSettings((s) => s.notificationsGranted);
+
   useEffect(() => {
-    SplashScreen.hideAsync().catch(() => {});
-    seedRoutinesForToday(seedRoutines);
+    seedRoutines(todayISO());
   }, [seedRoutines]);
+
+  // Reminder sync touches the notification service; keep it off the first frame.
   useEffect(() => {
-    syncTodayReminders(tasks, { notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted });
+    const id = setTimeout(() => {
+      syncTodayReminders(tasks, {
+        notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted,
+      });
+    }, 0);
+    return () => clearTimeout(id);
   }, [tasks, notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted]);
+
   return (
     <ToastProvider>
       <StatusBar style={t.dark ? 'light' : 'dark'} />
@@ -42,10 +50,6 @@ function AppStack() {
   );
 }
 
-function seedRoutinesForToday(seed: (date: string) => void) {
-  seed(todayISO());
-}
-
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Quicksand_500Medium,
@@ -55,8 +59,18 @@ export default function RootLayout() {
     Karla_600SemiBold,
     Karla_700Bold,
   });
-  // Never block the app on fonts: render with system fallbacks if loading fails.
-  if (!fontsLoaded && !fontError) return null;
+  const ready = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  // Text is measured with the font that will actually draw it, so hold the
+  // first frame until the faces resolve (~200ms) rather than letting a
+  // fallback-metrics layout clip labels when Quicksand/Karla swap in. A font
+  // error still lets the app through, on system fallbacks.
+  if (!ready) return null;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

@@ -67,12 +67,36 @@ lib/            types, zustand stores, NL parsing, scheduler, repair engine, not
 docs/screens/   the 65-screen design reference
 ```
 
-## Known issue: release APKs on Expo SDK 57 / RN 0.86.0
+## Startup time
 
-Debug builds run perfectly on device. Standalone release APKs currently stall
-on a blank screen: in release Hermes builds the JS scheduler/timer callbacks
-never fire (verified with a bare `registerRootComponent` probe — no router, no
-reanimated — where `setTimeout` never runs), so React never commits its first
-frame. This reproduces with an empty app on this stack and is not caused by
-Tiny Day's code. Until the upstream fix lands, test with `npx expo run:android`
-(debug) or pin the project to the previous stable SDK for release builds.
+The app starts in ~1s once the JS bundle is local. In a Metro-backed debug
+build, expect ~10-15s instead: roughly 6.5s to download the 3.4MB dev bundle
+over adb and ~2.7s to evaluate it unminified. That cost is the dev server, not
+the app — a production bundle removes it entirely.
+
+## Known issue: production bundles on Expo SDK 57 / RN 0.86.0
+
+Debug builds (Metro, `__DEV__` true) run correctly. Any build using a
+production bundle — `assembleRelease`, or a debug APK with
+`debuggableVariants = []` — renders a permanently blank screen. Narrowed down
+by bisecting the build inputs:
+
+| Bundle | Result |
+|---|---|
+| `dev=true`, served by Metro | works |
+| `dev=false`, minified, embedded | blank |
+| `dev=false`, **not** minified, embedded | blank |
+| `dev=true`, embedded | redbox: devtools websocket unavailable |
+
+So it is not minification, not APK signing, not ProGuard (disabled) and not the
+splash screen — it tracks `__DEV__` alone. In the failing builds the JS bundle
+loads and executes ("Running main" logs, no exception reaches a global
+`ErrorUtils` handler), and a trivial static component does render, but anything
+driven by state or timers never paints and `setTimeout` callbacks never fire —
+i.e. the JS scheduler does not pump. That points at the Hermes/RN release
+runtime on this stack rather than app code.
+
+Until it is fixed upstream, run the app with `npx expo start` +
+`npx expo run:android`. Shipping a standalone APK needs a downgrade to the
+previous stable SDK, which is a deliberate trade-off (latest SDK vs. shippable
+release builds) rather than something to change silently.
