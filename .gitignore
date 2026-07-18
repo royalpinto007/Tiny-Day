@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.zip
+.DS_Store
+npm-debug.*
+*.orig.*
+*.tsbuildinfo
