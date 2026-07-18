@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Quicksand_500Medium, Quicksand_600SemiBold, Quicksand_700Bold } from '@expo-google-fonts/quicksand';
@@ -22,6 +23,7 @@ function AppStack() {
   const privacyMode = useSettings((s) => s.privacyMode);
   const notificationsGranted = useSettings((s) => s.notificationsGranted);
   useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
     seedRoutinesForToday(seedRoutines);
   }, [seedRoutines]);
   useEffect(() => {
