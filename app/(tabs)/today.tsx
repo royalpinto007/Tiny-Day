@@ -172,6 +172,11 @@ export default function TodayScreen() {
               <Text variant="bodyBold" color={t.colors.sageDeep}>See full timeline →</Text>
             </Pressable>
           </Link>
+          <Link href="/notifications" asChild>
+            <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+              <Text variant="bodyBold" color={t.colors.sub}>Reminders</Text>
+            </Pressable>
+          </Link>
           <Link href="/evening" asChild>
             <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
               <Text variant="bodyBold" color={t.colors.sub}>Evening check-in</Text>

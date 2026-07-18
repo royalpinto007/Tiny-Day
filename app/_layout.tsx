@@ -10,13 +10,23 @@ import { ToastProvider } from '../components/Toast';
 import { useSettings } from '../lib/store/settings';
 import { useTasks } from '../lib/store/tasks';
 import { todayISO } from '../lib/types';
+import { syncTodayReminders } from '../lib/notifications';
 
 function AppStack() {
   const t = useTheme();
   const seedRoutines = useTasks((s) => s.seedRoutinesForDate);
+  const tasks = useTasks((s) => s.tasks);
+  const notificationLevel = useSettings((s) => s.notificationLevel);
+  const quietStartMin = useSettings((s) => s.quietStartMin);
+  const quietEndMin = useSettings((s) => s.quietEndMin);
+  const privacyMode = useSettings((s) => s.privacyMode);
+  const notificationsGranted = useSettings((s) => s.notificationsGranted);
   useEffect(() => {
     seedRoutinesForToday(seedRoutines);
   }, [seedRoutines]);
+  useEffect(() => {
+    syncTodayReminders(tasks, { notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted });
+  }, [tasks, notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted]);
   return (
     <ToastProvider>
       <StatusBar style={t.dark ? 'light' : 'dark'} />
