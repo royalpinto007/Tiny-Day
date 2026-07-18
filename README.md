@@ -66,3 +66,13 @@ theme/          light/dark tokens, type scale, ThemeProvider
 lib/            types, zustand stores, NL parsing, scheduler, repair engine, notifications
 docs/screens/   the 65-screen design reference
 ```
+
+## Known issue: release APKs on Expo SDK 57 / RN 0.86.0
+
+Debug builds run perfectly on device. Standalone release APKs currently stall
+on a blank screen: in release Hermes builds the JS scheduler/timer callbacks
+never fire (verified with a bare `registerRootComponent` probe — no router, no
+reanimated — where `setTimeout` never runs), so React never commits its first
+frame. This reproduces with an empty app on this stack and is not caused by
+Tiny Day's code. Until the upstream fix lands, test with `npx expo run:android`
+(debug) or pin the project to the previous stable SDK for release builds.
