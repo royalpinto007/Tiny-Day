@@ -45,7 +45,7 @@ function seedRoutinesForToday(seed: (date: string) => void) {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Quicksand_500Medium,
     Quicksand_600SemiBold,
     Quicksand_700Bold,
@@ -53,9 +53,8 @@ export default function RootLayout() {
     Karla_600SemiBold,
     Karla_700Bold,
   });
-  const hydrated = useSettings.persist?.hasHydrated?.() ?? true;
-  if (!fontsLoaded && !hydrated) return null;
-  if (!fontsLoaded) return null;
+  // Never block the app on fonts: render with system fallbacks if loading fails.
+  if (!fontsLoaded && !fontError) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
