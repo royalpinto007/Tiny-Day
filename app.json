@@ -7,7 +7,6 @@
     "icon": "./assets/icon.png",
     "scheme": "tinyday",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -34,7 +33,8 @@
           "defaultChannel": "reminders"
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true
