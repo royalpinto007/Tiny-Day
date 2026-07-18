@@ -76,50 +76,48 @@ the app — a production bundle removes it entirely.
 
 ## Known issue: production bundles render blank
 
-Debug builds (Metro, `__DEV__` true) work. Production builds render a
-permanently blank screen. The process sits at 0% CPU with every thread asleep —
+Debug builds (Metro, `__DEV__` true) work. Every production build renders a
+permanently blank screen. The process sits at 0% CPU with all threads asleep:
 the JS event loop is idle but never pumped, so `setTimeout` and
 `requestAnimationFrame` never fire and Fabric never mounts a view. Promises
-(microtasks) still resolve, because Hermes drains those itself without the
-native scheduler.
+still resolve, because Hermes drains microtasks itself without the native
+scheduler.
 
-**Hermes bytecode is part of it.** Release APKs ship a precompiled `.hbc`
-bundle (magic `c6 1f bc 03`). Swapping in a plain-JS bundle and re-signing makes
-a *minimal* production app work — verified with a release-signed,
-non-debuggable APK running with Metro stopped and a `setInterval` counter
-ticking past 250. So the fix for small apps is to ship plain JS:
+Minimal reproduction — no router, no navigation, no animation library:
 
-```bash
-npx expo export:embed --platform android --dev false \
-  --bundle-output assets/index.android.bundle --assets-dest res
-zip app-release.apk assets/index.android.bundle   # replace the .hbc bundle
-zipalign -p -f 4 app-release.apk aligned.apk
-apksigner sign --ks ~/.android/debug.keystore --out signed.apk aligned.apk
+```jsx
+function Probe() {
+  const [n, setN] = useState(0);
+  useEffect(() => { setInterval(() => setN((x) => x + 1), 700); }, []);
+  console.log('render n=' + n);   // logs once, n=0
+  return <Text>TICK {n}</Text>;    // never paints
+}
+registerRootComponent(Probe);
 ```
 
-**But that is not sufficient for this app.** With plain JS, the full app still
-stalls: the root layout *module* initialises, then a module-scope `setTimeout`
-never fires and the root component never renders. Something later in the module
-graph — expo-router, expo-notifications, AsyncStorage, screens,
-gesture-handler or svg — stops the scheduler. Isolating it needs a binary
-search over those dependencies.
-
-Ruled out by bisection, each with a rebuilt APK:
+Ruled out by bisection, each with a rebuilt or re-bundled APK:
 
 | Hypothesis | Result |
 |---|---|
 | Expo SDK 57 regression | also fails on SDK 56 / RN 0.85.3 |
 | App code | minimal 2-file router app fails |
-| expo-router | non-router app also fails *on bytecode* |
+| expo-router | non-router `registerRootComponent` app fails |
+| Hermes bytecode | fails with a plain-JS bundle swapped into the APK |
 | Minification | fails unminified |
-| `react-native-reanimated` / worklets | fails with both removed, on plain JS |
+| `react-native-reanimated` / worklets | fails with both removed |
 | Font loading gate | fails with a 2s timeout fallback |
 | Splash screen | logs `splash hidden OK`, still blank |
-| APK signing / ProGuard | debug-signed embedded bundle fails; ProGuard off |
+| Missing `metro.config.js` | fails after adding the standard config |
+| APK signing / ProGuard | debug-signed bundle swap fails; ProGuard off |
 | Screen off / backgrounding | fails with screen on and `stayon true` |
-| Legacy architecture | not available — RN 0.82+ removed it |
-| JSC instead of Hermes | not testable — worklets requires Hermes |
+| First launch vs. relaunch | fails on launches 1, 2 and 3 |
+| Legacy architecture | unavailable — RN 0.82+ removed it |
+| JSC instead of Hermes | untestable — worklets requires Hermes |
 
-Next step is to build on a known-good toolchain (`eas build -p android
---profile preview`) to separate "this machine" from a genuine framework bug.
-Until then, run the app with `npx expo start` + `npx expo run:android`.
+One run of a plain-JS probe *did* tick correctly, but that result could not be
+reproduced afterwards under the same conditions, so it should be treated as an
+artifact rather than a fix.
+
+Next step is a build on a known-good toolchain (`eas build -p android --profile
+preview`) to separate a local toolchain fault from an upstream bug. Until then,
+run the app with `npx expo start` + `npx expo run:android`.
