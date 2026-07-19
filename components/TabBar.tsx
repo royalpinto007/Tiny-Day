@@ -5,12 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 import { QuickAddSheet } from './QuickAddSheet';
+import { TabIcon, TabName } from './TabIcon';
 
-const TAB_META: Record<string, { label: string; glyph: string }> = {
-  today: { label: 'Today', glyph: '●' },
-  plan: { label: 'Plan', glyph: '▦' },
-  room: { label: 'Room', glyph: '⌂' },
-  profile: { label: 'Profile', glyph: '☺' },
+const TAB_META: Record<string, { label: string }> = {
+  today: { label: 'Today' },
+  plan: { label: 'Plan' },
+  room: { label: 'Room' },
+  profile: { label: 'Profile' },
 };
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
@@ -36,9 +37,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         }}
         style={{ alignItems: 'center', justifyContent: 'center', minWidth: MIN_TOUCH, minHeight: MIN_TOUCH, flex: 1 }}
       >
-        <Text style={{ fontSize: 18 }} color={focused ? t.colors.sage : t.colors.faint}>
-          {meta.glyph}
-        </Text>
+        <TabIcon
+                name={route.name as TabName}
+                color={focused ? t.colors.sage : t.colors.faint}
+                focused={focused}
+              />
         <Text variant="caption" color={focused ? t.colors.sageDeep : t.colors.sub}>
           {meta.label}
         </Text>

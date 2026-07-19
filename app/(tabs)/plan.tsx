@@ -12,6 +12,7 @@ import { useTheme } from '../../theme';
 import { backlogTasks, tasksForDate, useTasks } from '../../lib/store/tasks';
 import { addDaysISO, CATEGORY_LABEL, minToLabel, PRIORITY_GLYPH, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
+import { monthDayLabel } from '../../lib/format';
 
 type ViewKey = 'tomorrow' | 'week' | 'backlog' | 'routines';
 const DAY_NAMES = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -85,7 +86,7 @@ export default function PlanScreen() {
             const dayTasks = tasksForDate(tasks, iso);
             const d = new Date(`${iso}T12:00:00`);
             const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
-              : d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric' });
+              : `${d.toLocaleDateString('en-US', { weekday: 'long' })}, ${monthDayLabel(d)}`;
             return (
               <Card key={iso}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

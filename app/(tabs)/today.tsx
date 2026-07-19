@@ -12,6 +12,7 @@ import { useSettings } from '../../lib/store/settings';
 import { tasksForDate, useTasks } from '../../lib/store/tasks';
 import { minToLabel, PRIORITY_GLYPH, Task, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
+import { longDateLabel } from '../../lib/format';
 
 function greeting(name: string): string {
   const h = new Date().getHours();
@@ -19,9 +20,7 @@ function greeting(name: string): string {
   return name ? `${part}, ${name}` : part;
 }
 
-function dateLabel(): string {
-  return new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-}
+
 
 export default function TodayScreen() {
   const t = useTheme();
@@ -53,7 +52,7 @@ export default function TodayScreen() {
   return (
     <Screen>
       <Text variant="display">{greeting(name)}</Text>
-      <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{dateLabel()}</Text>
+      <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{longDateLabel()}</Text>
 
       <View style={{ marginTop: t.spacing.lg }}>
         <Room completion={completion} height={isTablet ? 240 : 170} />
