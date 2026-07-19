@@ -1,10 +1,13 @@
 node_modules/
 .expo/
+.eas/
 dist/
 web-build/
+coverage/
 *.zip
 .DS_Store
 npm-debug.*
+*.log
 *.orig.*
 *.tsbuildinfo
 
@@ -17,5 +20,27 @@ expo-env.d.ts
 android/
 ios/
 
-# Local tooling
+# Editors and local tooling
+.idea/
+.vscode/
 .claude/
+
+# Local environment and signing material
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+service-account*.json
+*-service-account.json
+
+# Build and installation artifacts belong in GitHub Releases, not source
+*.apk
+*.aab
+*.apks
+*.idsig
+*.ipa

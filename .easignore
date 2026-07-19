@@ -13,11 +13,28 @@ ios/
 .DS_Store
 *.tsbuildinfo
 npm-debug.*
+*.log
+
+# Local secrets and signing material use EAS credentials/environment storage
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+service-account*.json
+*-service-account.json
 
 # Local build artifacts and design/reference bundles
 *.apk
 *.apk.idsig
 *.aab
+*.apks
+*.idsig
+*.ipa
 *.zip
 docs/screens/
 
