@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, Switch, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 import { Energy, Mood } from '../lib/types';
@@ -12,7 +11,6 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
       accessibilityLabel={label}
       value={value}
       onValueChange={(v) => {
-        Haptics.selectionAsync().catch(() => {});
         onChange(v);
       }}
       trackColor={{ false: t.colors.trackFill, true: t.colors.sage }}
@@ -46,7 +44,6 @@ export function SegmentedControl<T extends string>({ options, value, onChange, s
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => {
-              Haptics.selectionAsync().catch(() => {});
               onChange(o.key);
             }}
             style={{
@@ -84,7 +81,6 @@ function OptionRow<T extends string>({ options, value, onChange }: {
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             onPress={() => {
-              Haptics.selectionAsync().catch(() => {});
               onChange(o.key);
             }}
             style={{

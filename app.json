@@ -18,7 +18,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "package": "com.tinyday.app",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "backgroundColor": "#FAF6F0"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -34,10 +35,23 @@
         }
       ],
       "expo-status-bar",
-      "expo-splash-screen"
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAF6F0",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#26232A"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "backgroundColor": "#FAF6F0"
   }
 }

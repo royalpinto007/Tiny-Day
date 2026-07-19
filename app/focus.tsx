@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Button } from '../components/Button';
@@ -58,7 +57,6 @@ export default function FocusScreen() {
   const ss = String(remaining % 60).padStart(2, '0');
 
   const complete = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setStatus(task.id, 'completed');
     setFocusTask(null);
     toast.show({ message: 'Done. The room just got a little brighter.' });

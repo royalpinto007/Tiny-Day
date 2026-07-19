@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 
@@ -40,7 +39,6 @@ export function Button({ title, onPress, kind = 'primary', disabled, style, comp
       disabled={disabled}
       onPress={() => {
         if (!disabled) {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
           onPress?.();
         }
       }}

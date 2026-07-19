@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { useTheme, MIN_TOUCH } from '../theme';
 import { Card } from './Card';
 import { Text } from './Text';
@@ -27,7 +26,6 @@ export function TaskCard({ task, onPress, onToggleComplete, compact }: Props) {
           accessibilityLabel={done ? `Mark ${task.name} as not done` : `Complete ${task.name}`}
           hitSlop={8}
           onPress={() => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
             onToggleComplete?.();
           }}
           style={{

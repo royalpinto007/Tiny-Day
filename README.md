@@ -19,7 +19,7 @@ Tiny Day is a fully offline React Native (Expo) app: no account, no cloud, no an
 - **Evening** — mood check-in, gentle stats, leftovers triage (tomorrow / backlog / let go — never auto-carry). *"You did enough for today."*
 - **Notifications** — ▲ must = remind + one follow-up · ● should = one reminder · ○ optional = silent. Quiet hours, privacy mode ("Important reminder due now"), and at most one gentle replan prompt. No streaks, no guilt.
 - **Plan tab** — Tomorrow, Week, Backlog, and a Routine builder with per-day scheduling.
-- **Accessibility** — 44px+ touch targets, dynamic type, reduce-motion and high-contrast toggles, screen-reader labels, and priority always shown as glyph + label, never color alone.
+- **Accessibility** — 44px+ touch targets, dynamic type, reduce-motion and high-contrast toggles, screen-reader labels, and priority always shown as glyph + label, never color alone. No haptics: the app never vibrates.
 - **Tablet** — sidebar navigation and wide layouts at ≥768px.
 
 <p align="center">
@@ -46,7 +46,7 @@ The full 65-screen design spec lives in [docs/screens/](docs/screens/) — see [
 
 - Expo SDK 57 · TypeScript · expo-router
 - Zustand + AsyncStorage (all data local; works fully offline)
-- react-native-svg (the Room) · react-native-reanimated · expo-haptics
+- react-native-svg (the Room) · react-native-reanimated
 - expo-notifications (local only) · expo-google-fonts (Quicksand, Karla)
 
 ## Run it

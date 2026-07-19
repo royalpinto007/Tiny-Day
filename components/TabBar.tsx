@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 type BottomTabBarProps = { state: any; navigation: any; descriptors?: any; insets?: any };
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
 import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 import { QuickAddSheet } from './QuickAddSheet';
@@ -33,7 +32,6 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         accessibilityState={{ selected: focused }}
         accessibilityLabel={meta.label}
         onPress={() => {
-          Haptics.selectionAsync().catch(() => {});
           navigation.navigate(route.name as never);
         }}
         style={{ alignItems: 'center', justifyContent: 'center', minWidth: MIN_TOUCH, minHeight: MIN_TOUCH, flex: 1 }}
@@ -67,7 +65,6 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           accessibilityRole="button"
           accessibilityLabel="Quick add task"
           onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
             setQuickAdd(true);
           }}
           style={{

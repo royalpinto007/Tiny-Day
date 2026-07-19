@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Haptics from 'expo-haptics';
 import { Screen } from '../components/Screen';
 import { Text } from '../components/Text';
 import { Card } from '../components/Card';
@@ -47,7 +46,6 @@ export default function ReplanScreen() {
     if (plan.restInserted) {
       addTask({ name: 'Rest', category: 'break', durationMin: 20, priority: 'must', date: todayISO(), reminderMinBefore: null });
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setStep('done');
   };
 

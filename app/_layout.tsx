@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
+import { useColorScheme } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -51,6 +52,8 @@ function AppStack() {
 }
 
 export default function RootLayout() {
+  const scheme = useColorScheme();
+  const rootBg = scheme === 'dark' ? '#26232A' : '#FAF6F0';
   const [fontsLoaded, fontError] = useFonts({
     Quicksand_500Medium,
     Quicksand_600SemiBold,
@@ -72,7 +75,9 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    // Paint the root in the theme colour so no white frame shows between the
+    // splash screen tearing down and the first rendered screen.
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: rootBg }}>
       <SafeAreaProvider>
         <ThemeProvider>
           <AppStack />
