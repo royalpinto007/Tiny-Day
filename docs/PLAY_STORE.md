@@ -150,6 +150,19 @@ screenshots.
 
 ## Release checklist
 
+### Prepared production artifact
+
+- EAS build: <https://expo.dev/accounts/royalpinto007/projects/tiny-day/builds/5d81e850-3420-4d95-bebf-3181004fd963>
+- AAB: <https://expo.dev/artifacts/eas/VoN-qMZrglUsqpuGuoRnDP2irLrvxvz7k52v5t1QWZs.aab>
+- Source commit: `a7338353ba052a39fdddcc7dc9812ca266e9671f`
+- Application ID: `com.tinyday.app`
+- Version: `1.0.0` (`versionCode` 2)
+- Android SDK: minimum 24, target 36
+- SHA-256: `ccd57ea7585a7bd0d4087869269d732ee953b8afe312ed51823e5a8d8076a457`
+
+This bundle is prepared for Play closed testing. An AAB is not directly
+installable; Google Play generates optimized APKs for enrolled devices.
+
 - [ ] Incorporate closed-test feedback and rerun CI.
 - [ ] Increment the user-facing version for changes after `v1.0.0`.
 - [ ] Run `npm run typecheck` and `npx expo-doctor`.
