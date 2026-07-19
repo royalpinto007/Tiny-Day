@@ -89,6 +89,14 @@ lib/            types, zustand stores, NL parsing, scheduler, repair engine, not
 docs/screens/   the 65-screen design reference
 ```
 
+## A note on text rendering
+
+If text looks outlined or "stroked", especially in light mode, check
+**Settings → Accessibility → High contrast text** on the device. Android draws
+an outline around all text system-wide when that is on, which reads very
+differently from the design. It is a device preference, not an app setting, and
+the app cannot (and should not) override it.
+
 ## Startup time
 
 A standalone build (see above) cold-starts in ~1s. A Metro-backed debug build
