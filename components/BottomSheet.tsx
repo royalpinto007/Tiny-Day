@@ -25,7 +25,7 @@ export function BottomSheet({ visible, onClose, children }: Props) {
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <Pressable accessibilityLabel="Dismiss" style={styles.backdrop} onPress={onClose} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.avoider}
         pointerEvents="box-none"
       >

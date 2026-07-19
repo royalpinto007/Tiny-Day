@@ -26,9 +26,9 @@ const DURATION_DEFAULTS: Partial<Record<Category, number>> = {
   meal: 45, break: 15, errand: 40, appointment: 60, health: 60, travel: 45,
 };
 
-export function parseTaskLine(raw: string): ParsedTask {
+export function parseTaskLine(raw: string, defaultDate = todayISO()): ParsedTask {
   let text = raw.trim();
-  let date = todayISO();
+  let date = defaultDate;
   let startMin: number | null = null;
   let durationMin: number | null = null;
   let priority: Priority | null = null;
@@ -39,6 +39,7 @@ export function parseTaskLine(raw: string): ParsedTask {
     date = addDaysISO(todayISO(), 1);
     text = text.replace(/\btomorrow\b/gi, '').trim();
   } else if (/\btoday\b/i.test(text)) {
+    date = todayISO();
     text = text.replace(/\btoday\b/gi, '').trim();
   }
 
@@ -101,5 +102,5 @@ export function parseBrainDump(text: string): ParsedTask[] {
     .split(/\n|(?:^|\s)[•·]\s|;/)
     .map((line) => line.replace(/^[\s\-*\d.)]+/, '').trim())
     .filter((line) => line.length > 1)
-    .map(parseTaskLine);
+    .map((line) => parseTaskLine(line));
 }

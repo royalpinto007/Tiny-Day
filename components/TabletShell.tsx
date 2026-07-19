@@ -6,6 +6,7 @@ import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 import { QuickAddSheet } from './QuickAddSheet';
 import { TabIcon, TabName } from './TabIcon';
+import { addDaysISO, todayISO } from '../lib/types';
 
 const TAB_META: Record<string, { label: string }> = {
   today: { label: 'Today' },
@@ -20,6 +21,8 @@ export function TabletShell({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const [quickAdd, setQuickAdd] = useState(false);
   const routes = state.routes.filter((r: { name: string; key: string }) => TAB_META[r.name]);
+  const activeRoute = state.routes[state.index]?.name;
+  const quickAddDate = activeRoute === 'plan' ? addDaysISO(todayISO(), 1) : todayISO();
 
   return (
     <>
@@ -83,7 +86,7 @@ export function TabletShell({ state, navigation }: BottomTabBarProps) {
           );
         })}
       </View>
-      <QuickAddSheet visible={quickAdd} onClose={() => setQuickAdd(false)} />
+      <QuickAddSheet visible={quickAdd} onClose={() => setQuickAdd(false)} defaultDate={quickAddDate} />
     </>
   );
 }

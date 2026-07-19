@@ -11,13 +11,22 @@ import { parseTaskLine } from '../lib/parse';
 import { useTasks } from '../lib/store/tasks';
 import { durationLabel, minToLabel, todayISO } from '../lib/types';
 
-export function QuickAddSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+interface Props {
+  visible: boolean;
+  onClose: () => void;
+  defaultDate?: string;
+}
+
+export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Props) {
   const t = useTheme();
   const toast = useToast();
   const addTask = useTasks((s) => s.addTask);
   const removeTask = useTasks((s) => s.removeTask);
   const [text, setText] = useState('');
-  const parsed = useMemo(() => (text.trim().length > 1 ? parseTaskLine(text) : null), [text]);
+  const parsed = useMemo(
+    () => (text.trim().length > 1 ? parseTaskLine(text, defaultDate) : null),
+    [defaultDate, text]
+  );
   const [reminder, setReminder] = useState<number | null>(15);
   const [flexible, setFlexible] = useState(true);
 

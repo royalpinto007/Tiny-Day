@@ -18,6 +18,10 @@ All notable changes to Tiny Day are documented here. The format follows
 
 - Focus mode now gives the Complete action a full-width row so its label does
   not wrap on narrow Android screens or with larger text.
+- Quick Add now defaults to tomorrow when opened from the Plan tab instead of
+  incorrectly adding an unspecified task to today.
+- The Quick Add sheet now resizes and stays above the Android keyboard on
+  shorter phone displays.
 
 ## [1.0.0] - 2026-07-19
 

@@ -6,6 +6,7 @@ import { useTheme, MIN_TOUCH } from '../theme';
 import { Text } from './Text';
 import { QuickAddSheet } from './QuickAddSheet';
 import { TabIcon, TabName } from './TabIcon';
+import { addDaysISO, todayISO } from '../lib/types';
 
 const TAB_META: Record<string, { label: string }> = {
   today: { label: 'Today' },
@@ -21,6 +22,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const routes = state.routes.filter((r: { name: string; key: string }) => TAB_META[r.name]);
   const left = routes.slice(0, 2);
   const right = routes.slice(2);
+  const activeRoute = state.routes[state.index]?.name;
+  const quickAddDate = activeRoute === 'plan' ? addDaysISO(todayISO(), 1) : todayISO();
 
   const renderTab = (route: (typeof routes)[number]) => {
     const index = state.routes.findIndex((r: { key: string }) => r.key === route.key);
@@ -90,7 +93,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         </Pressable>
         {right.map(renderTab)}
       </View>
-      <QuickAddSheet visible={quickAdd} onClose={() => setQuickAdd(false)} />
+      <QuickAddSheet visible={quickAdd} onClose={() => setQuickAdd(false)} defaultDate={quickAddDate} />
     </>
   );
 }
