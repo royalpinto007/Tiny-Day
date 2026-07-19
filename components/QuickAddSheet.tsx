@@ -33,7 +33,6 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
   const [dateOverride, setDateOverride] = useState<string>();
   const [timeOverride, setTimeOverride] = useState<number | null>();
   const [picker, setPicker] = useState<'date' | 'time' | null>(null);
-  const [showOptions, setShowOptions] = useState(false);
   const requestedDate = dateOverride ?? parsed?.date ?? defaultDate;
   const scheduledDate = requestedDate < todayISO() ? todayISO() : requestedDate;
   const scheduledTime = timeOverride !== undefined ? timeOverride : parsed?.startMin ?? null;
@@ -43,7 +42,6 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
     setDateOverride(undefined);
     setTimeOverride(undefined);
     setPicker(null);
-    setShowOptions(false);
   }, [defaultDate, visible]);
 
   const pickerValue = useMemo(() => {
@@ -136,10 +134,7 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           <PriorityChip priority={parsed.priority} />
         </View>
       )}
-      <Pressable accessibilityRole="button" onPress={() => setShowOptions(!showOptions)} style={{ minHeight: 44, justifyContent: 'center', marginTop: t.spacing.sm }}>
-        <Text variant="bodyBold" color={t.colors.sageDeep}>{showOptions ? 'Hide options' : 'More options'}</Text>
-      </Pressable>
-      {showOptions && <View style={{ flexDirection: 'row', gap: t.spacing.md }}>
+      <View style={{ flexDirection: 'row', gap: t.spacing.md, marginTop: t.spacing.lg }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Reminder: ${reminder == null ? 'none' : `${reminder} min before`}. Tap to change`}
@@ -166,7 +161,7 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           <Text variant="label" color={t.colors.sub}>Flexibility</Text>
           <Text variant="taskTitle" style={{ marginTop: 4 }}>{flexible ? 'Can move' : 'Fixed'}</Text>
         </Pressable>
-      </View>}
+      </View>
       <Button title="Add task" onPress={submit} disabled={!parsed} style={{ marginTop: t.spacing.lg }} />
     </BottomSheet>
   );
