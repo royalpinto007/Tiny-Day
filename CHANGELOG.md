@@ -8,6 +8,8 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ### Added
 
+- Explicit calendar-date and time pickers in New Task, allowing tasks to be
+  scheduled on any day while retaining natural-language suggestions.
 - Optional, read-only device calendar connection with permission handling,
   seven-day event import, duplicate protection, manual resync, and disconnect.
 - Community documentation and GitHub contribution templates.
