@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '../../components/Screen';
@@ -10,12 +10,15 @@ import { useTheme } from '../../theme';
 import { Appearance, PlanningStyle, useSettings } from '../../lib/store/settings';
 import { useTasks } from '../../lib/store/tasks';
 import { minToLabel, todayISO } from '../../lib/types';
+import { connectAndSyncCalendar } from '../../lib/calendar';
 
 export default function ProfileScreen() {
   const t = useTheme();
   const router = useRouter();
   const s = useSettings();
   const snapshots = useTasks((x) => x.snapshots);
+  const [calendarBusy, setCalendarBusy] = useState(false);
+  const [calendarMessage, setCalendarMessage] = useState('');
   const stats = useMemo(() => {
     const all = Object.values(snapshots);
     return {
@@ -94,9 +97,50 @@ export default function ProfileScreen() {
         <SettingRow label="Day window" note={`${minToLabel(s.wakeMin)} – ${minToLabel(s.sleepMin)}`}>
           <View />
         </SettingRow>
-        <SettingRow label="Calendar" note={s.calendarConnected ? 'Connected · read-only' : 'Not connected'}>
-          <Toggle value={s.calendarConnected} onChange={(v) => s.set({ calendarConnected: v })} label="Calendar connected" />
-        </SettingRow>
+        <View>
+          <Text variant="taskTitle">Calendar</Text>
+          <Text variant="caption" color={t.colors.sub} style={{ marginTop: 2 }}>
+            {s.calendarConnected ? 'Connected · read-only · next 7 days' : 'Not connected'}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+            <Button
+              title={calendarBusy ? 'Syncing…' : s.calendarConnected ? 'Sync now' : 'Connect & import'}
+              kind="secondary"
+              compact
+              disabled={calendarBusy}
+              onPress={async () => {
+                setCalendarBusy(true);
+                setCalendarMessage('');
+                try {
+                  const result = await connectAndSyncCalendar();
+                  if (result.status === 'synced') {
+                    s.set({ calendarConnected: true });
+                    setCalendarMessage(result.imported > 0
+                      ? `${result.imported} new ${result.imported === 1 ? 'event' : 'events'} imported.`
+                      : 'Calendar is up to date.');
+                  } else {
+                    s.set({ calendarConnected: false });
+                    setCalendarMessage(result.status === 'denied'
+                      ? 'Calendar access was not allowed. Check Android Settings if needed.'
+                      : 'No device calendars were found.');
+                  }
+                } catch {
+                  s.set({ calendarConnected: false });
+                  setCalendarMessage('Could not read the calendar. Please try again.');
+                } finally {
+                  setCalendarBusy(false);
+                }
+              }}
+            />
+            {s.calendarConnected && (
+              <Button title="Disconnect" kind="tertiary" compact onPress={() => {
+                s.set({ calendarConnected: false });
+                setCalendarMessage('Disconnected. Previously imported appointments remain in your plan.');
+              }} />
+            )}
+          </View>
+          {!!calendarMessage && <Text variant="caption" color={t.colors.sub} style={{ marginTop: 8 }}>{calendarMessage}</Text>}
+        </View>
       </Card>
 
       <Text variant="title" style={{ marginTop: t.spacing.xl }}>Privacy</Text>

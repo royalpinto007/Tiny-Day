@@ -12,6 +12,7 @@ import { BrandMark } from '../components/BrandMark';
 import { useTheme } from '../theme';
 import { NotificationLevel, PlanningStyle, RoomTheme, useSettings } from '../lib/store/settings';
 import { minToLabel } from '../lib/types';
+import { connectAndSyncCalendar } from '../lib/calendar';
 
 type Step =
   | 'welcome' | 'name' | 'dayShape' | 'style' | 'notifLevel'
@@ -66,6 +67,8 @@ export default function OnboardingScreen() {
   const [style, setStyle] = useState<PlanningStyle>('flexible');
   const [level, setLevel] = useState<NotificationLevel>('important');
   const [roomTheme, setRoomTheme] = useState<RoomTheme>('cozy');
+  const [calendarBusy, setCalendarBusy] = useState(false);
+  const [calendarMessage, setCalendarMessage] = useState('');
 
   const next = () => setStep(ORDER[Math.min(ORDER.indexOf(step) + 1, ORDER.length - 1)]);
   const previous = () => setStep(ORDER[Math.max(ORDER.indexOf(step) - 1, 0)]);
@@ -210,13 +213,34 @@ export default function OnboardingScreen() {
               Tiny Day can plan around existing events. It never writes to your calendar. Totally optional.
             </Text>
             <Button
-              title="Connect calendar"
+              title={calendarBusy ? 'Connecting…' : 'Connect & import'}
+              disabled={calendarBusy}
               style={{ marginTop: t.spacing.xl }}
-              onPress={() => {
-                settings.set({ calendarConnected: true });
-                next();
+              onPress={async () => {
+                setCalendarBusy(true);
+                setCalendarMessage('');
+                try {
+                  const result = await connectAndSyncCalendar();
+                  if (result.status === 'synced') {
+                    settings.set({ calendarConnected: true });
+                    next();
+                  } else if (result.status === 'denied') {
+                    settings.set({ calendarConnected: false });
+                    setCalendarMessage(result.canAskAgain
+                      ? 'Calendar access was not allowed. You can retry or skip.'
+                      : 'Calendar access is blocked. Enable it in Android Settings to connect.');
+                  } else {
+                    setCalendarMessage('No device calendars were found. You can skip and connect later.');
+                  }
+                } catch {
+                  settings.set({ calendarConnected: false });
+                  setCalendarMessage('Tiny Day could not read your calendar. Please retry or skip for now.');
+                } finally {
+                  setCalendarBusy(false);
+                }
               }}
             />
+            {!!calendarMessage && <Text variant="caption" color={t.colors.sub} center style={{ marginTop: 10 }}>{calendarMessage}</Text>}
             <Skip label="Skip — plan without it" />
           </>
         )}

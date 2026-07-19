@@ -30,6 +30,12 @@
       "expo-router",
       "expo-font",
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow Tiny Day to read your calendar and import upcoming events into your local plan."
+        }
+      ],
+      [
         "expo-notifications",
         {
           "defaultChannel": "reminders"

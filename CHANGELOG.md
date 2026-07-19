@@ -8,6 +8,8 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ### Added
 
+- Optional, read-only device calendar connection with permission handling,
+  seven-day event import, duplicate protection, manual resync, and disconnect.
 - Community documentation and GitHub contribution templates.
 - GitHub Actions validation for TypeScript and Expo project health on pushes
   and pull requests.

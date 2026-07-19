@@ -50,6 +50,7 @@ export const useTasks = create<TasksState>()(
           notes: partial.notes,
           subtasks: partial.subtasks ?? [],
           routineId: partial.routineId,
+          calendarEventKey: partial.calendarEventKey,
           createdAt: Date.now(),
         };
         set((s) => ({ tasks: [...s.tasks, task] }));

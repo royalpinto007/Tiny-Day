@@ -50,6 +50,8 @@ export interface Task {
   subtasks: Subtask[];
   /** id of the routine that generated this task, if any */
   routineId?: string;
+  /** stable device-calendar event occurrence key, used to avoid duplicate imports */
+  calendarEventKey?: string;
   createdAt: number;
   completedAt?: number;
 }
