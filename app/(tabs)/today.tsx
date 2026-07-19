@@ -13,6 +13,7 @@ import { tasksForDate, useTasks } from '../../lib/store/tasks';
 import { minToLabel, PRIORITY_GLYPH, Task, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
 import { longDateLabel } from '../../lib/format';
+import { BrandMark } from '../../components/BrandMark';
 
 function greeting(name: string): string {
   const h = new Date().getHours();
@@ -51,8 +52,13 @@ export default function TodayScreen() {
 
   return (
     <Screen>
-      <Text variant="display">{greeting(name)}</Text>
-      <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{longDateLabel()}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ flex: 1 }}>
+          <Text variant="display">{greeting(name)}</Text>
+          <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{longDateLabel()}</Text>
+        </View>
+        <BrandMark size={52} />
+      </View>
 
       <View style={{ marginTop: t.spacing.lg }}>
         <Room completion={completion} height={isTablet ? 240 : 170} />

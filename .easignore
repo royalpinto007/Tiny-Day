@@ -1,0 +1,26 @@
+# Dependencies and generated outputs
+node_modules/
+.expo/
+dist/
+web-build/
+android/
+ios/
+
+# Local tooling and editor state
+.idea/
+.vscode/
+.claude/
+.DS_Store
+*.tsbuildinfo
+npm-debug.*
+
+# Local build artifacts and design/reference bundles
+*.apk
+*.apk.idsig
+*.aab
+*.zip
+docs/screens/
+
+# Git metadata is not needed by the remote builder
+.git/
+.gitignore

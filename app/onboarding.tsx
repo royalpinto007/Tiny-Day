@@ -8,6 +8,7 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { TextField } from '../components/controls';
 import { Room } from '../components/Room';
+import { BrandMark } from '../components/BrandMark';
 import { useTheme } from '../theme';
 import { NotificationLevel, PlanningStyle, RoomTheme, useSettings } from '../lib/store/settings';
 import { minToLabel } from '../lib/types';
@@ -67,6 +68,9 @@ export default function OnboardingScreen() {
   const [roomTheme, setRoomTheme] = useState<RoomTheme>('cozy');
 
   const next = () => setStep(ORDER[Math.min(ORDER.indexOf(step) + 1, ORDER.length - 1)]);
+  const previous = () => setStep(ORDER[Math.max(ORDER.indexOf(step) - 1, 0)]);
+  const stepIndex = ORDER.indexOf(step);
+  const setupStepCount = ORDER.length - 1;
 
   const finish = () => {
     settings.set({
@@ -86,12 +90,41 @@ export default function OnboardingScreen() {
   return (
     <Screen padBottom={32}>
       <View style={{ marginTop: t.spacing.xl }}>
+        {step !== 'welcome' && (
+          <View style={{ marginBottom: t.spacing.xl }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back to the previous setup step"
+                hitSlop={8}
+                onPress={previous}
+                style={{ minHeight: 44, justifyContent: 'center', paddingRight: t.spacing.md }}
+              >
+                <Text variant="bodyBold" color={t.colors.sageDeep}>← Back</Text>
+              </Pressable>
+              <Text variant="caption" color={t.colors.sub}>
+                Step {stepIndex} of {setupStepCount}
+              </Text>
+            </View>
+            <View
+              accessibilityRole="progressbar"
+              accessibilityValue={{ min: 0, max: setupStepCount, now: stepIndex }}
+              style={{ height: 4, borderRadius: 2, overflow: 'hidden', backgroundColor: t.colors.trackFill }}
+            >
+              <View
+                style={{
+                  width: `${(stepIndex / setupStepCount) * 100}%`,
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: t.colors.sage,
+                }}
+              />
+            </View>
+          </View>
+        )}
         {step === 'welcome' && (
           <View style={{ alignItems: 'center', marginTop: 80 }}>
-            <View style={{ width: 96, height: 96, borderRadius: 28, backgroundColor: t.colors.sage, alignItems: 'center', justifyContent: 'center' }}>
-              <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: t.colors.amber, marginBottom: 6 }} />
-              <View style={{ width: 48, height: 30, borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: t.colors.bg }} />
-            </View>
+            <BrandMark size={136} />
             <Text variant="display" style={{ marginTop: t.spacing.xl }}>Tiny Day</Text>
             <Text variant="body" color={t.colors.sub} style={{ marginTop: 6 }}>Your day, made manageable.</Text>
             <Button title="Get started" onPress={next} style={{ marginTop: 48, alignSelf: 'stretch' }} />
