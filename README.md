@@ -2,6 +2,10 @@
 
 A cozy daily planner. Your day, made manageable.
 
+[![GitHub release](https://img.shields.io/github/v/release/royalpinto007/Tiny-Day)](https://github.com/royalpinto007/Tiny-Day/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-7E9B77.svg)](LICENSE)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2057-000020.svg)](https://expo.dev/)
+
 Tiny Day is a fully offline React Native (Expo) app: no account, no cloud, no analytics. You brain-dump your day in plain language, it shapes a gentle timeline, and a tiny illustrated room lives alongside you — brightening as things get done, dimming into lamplight at night. When life happens, one tap repairs the day without guilt.
 
 <p align="center">
@@ -51,33 +55,49 @@ The full 65-screen design spec lives in [docs/screens/](docs/screens/) — see [
 
 ## Run it
 
+Requirements: Node.js 20 or newer and npm. For native device/emulator workflows,
+install the relevant Android or iOS tooling as described in the Expo docs.
+
 ```bash
 npm install
 npx expo start        # then press a for Android, i for iOS, w for web
 npm run typecheck     # tsc --noEmit
 ```
 
-## Build a standalone APK
+## Install the Android app
 
-The app is fully offline — everything lives in AsyncStorage on the device — so
-it should not need a computer to run. To get an installable APK that launches
-with no Metro dev server:
+Download the APK from the [latest GitHub release](https://github.com/royalpinto007/Tiny-Day/releases/latest),
+allow installation from your browser or file manager when Android asks, and
+open the downloaded file. Tiny Day currently targets Android 7.0 (API 24) and
+newer.
+
+## Build an Android preview
+
+EAS is the supported path for producing the installable test APK:
+
+```bash
+npx eas-cli build -p android --profile preview
+```
+
+The `preview` profile in `eas.json` produces an APK. Production builds use the
+`production` profile and should only be published after device testing.
+
+For local Android debugging:
+
+```bash
+npm run android
+```
+
+An experimental local standalone script is also available:
 
 ```bash
 scripts/build-standalone.sh            # -> TinyDay-standalone.apk
 adb install -r TinyDay-standalone.apk
 ```
 
-Cold start is ~1s. Set `TINYDAY_KEYSTORE`, `TINYDAY_KEYSTORE_PASS` and
-`TINYDAY_KEY_ALIAS` to sign with your own key instead of the Android debug
-keystore.
-
-The script embeds a **development** JS bundle rather than a production one,
-because production bundles are currently broken on this stack (see below).
-`metro.config.js` stubs out the one dev-only module that hard-fails when no dev
-server is reachable, which is what makes embedding a dev bundle viable. The
-tradeoff is a larger bundle and dev-mode warnings; behaviour is otherwise
-identical, and the app is genuinely self-contained.
+This script creates a development-signed diagnostic build and is not the release
+pipeline. Set `TINYDAY_KEYSTORE`, `TINYDAY_KEYSTORE_PASS`, and
+`TINYDAY_KEY_ALIAS` if you need a specific local signing key.
 
 ## Project layout
 
@@ -89,6 +109,8 @@ lib/            types, zustand stores, NL parsing, scheduler, repair engine, not
 docs/screens/   the 65-screen design reference
 ```
 
+For the main modules and data flow, see [Architecture](docs/ARCHITECTURE.md).
+
 ## A note on text rendering
 
 If text looks outlined or "stroked", especially in light mode, check
@@ -97,72 +119,20 @@ an outline around all text system-wide when that is on, which reads very
 differently from the design. It is a device preference, not an app setting, and
 the app cannot (and should not) override it.
 
-## Startup time
+## Privacy
 
-A standalone build (see above) cold-starts in ~1s. A Metro-backed debug build
-takes ~10-15s instead: roughly 6.5s to download the 3.4MB dev bundle over adb
-and ~2.7s to evaluate it. That cost is the dev server, not the app.
+Tiny Day stores planning data locally with AsyncStorage. It does not require an
+account and does not include cloud sync, advertising, or analytics. Local
+notifications are scheduled on the device. See [Security](SECURITY.md) for
+responsible vulnerability reporting and the current support policy.
 
-## Known issue: production bundles render blank
+## Contributing
 
-Debug builds (Metro, `__DEV__` true) work. Every production build renders a
-permanently blank screen. The process sits at 0% CPU with all threads asleep:
-the JS event loop is idle but never pumped, so `setTimeout` and
-`requestAnimationFrame` never fire and Fabric never mounts a view. Promises
-still resolve, because Hermes drains microtasks itself without the native
-scheduler.
+Bug reports, accessibility feedback, documentation improvements, and focused
+pull requests are welcome. Read [Contributing](CONTRIBUTING.md) before starting,
+and review the [Code of Conduct](CODE_OF_CONDUCT.md). Release history is tracked
+in the [Changelog](CHANGELOG.md).
 
-Minimal reproduction — no router, no navigation, no animation library:
+## License
 
-```jsx
-function Probe() {
-  const [n, setN] = useState(0);
-  useEffect(() => { setInterval(() => setN((x) => x + 1), 700); }, []);
-  console.log('render n=' + n);   // logs once, n=0
-  return <Text>TICK {n}</Text>;    // never paints
-}
-registerRootComponent(Probe);
-```
-
-Ruled out by bisection, each with a rebuilt or re-bundled APK:
-
-| Hypothesis | Result |
-|---|---|
-| Expo SDK 57 regression | also fails on SDK 56 / RN 0.85.3 |
-| App code | minimal 2-file router app fails |
-| expo-router | non-router `registerRootComponent` app fails |
-| Hermes bytecode | fails with a plain-JS bundle swapped into the APK |
-| Minification | fails unminified |
-| `react-native-reanimated` / worklets | fails with both removed |
-| Font loading gate | fails with a 2s timeout fallback |
-| Splash screen | logs `splash hidden OK`, still blank |
-| Missing `metro.config.js` | fails after adding the standard config |
-| APK signing / ProGuard | debug-signed bundle swap fails; ProGuard off |
-| Screen off / backgrounding | fails with screen on and `stayon true` |
-| First launch vs. relaunch | fails on launches 1, 2 and 3 |
-| Legacy architecture | unavailable — RN 0.82+ removed it |
-| JSC instead of Hermes | untestable — worklets requires Hermes |
-
-One run of a plain-JS probe *did* tick correctly, but that result could not be
-reproduced afterwards under the same conditions, so it should be treated as an
-artifact rather than a fix.
-
-### Trying a known-good toolchain
-
-Everything above was bisected on one machine, so the open question is whether
-this is a local toolchain fault or an upstream bug. `eas.json` is committed with
-a `preview` profile that produces an installable APK, and `npx expo-doctor`
-passes all 20 checks, so the project is ready to build on Expo's servers:
-
-```bash
-npx eas-cli login          # needs your Expo account
-npx eas-cli build -p android --profile preview
-```
-
-That build uses a normal production bundle. If the resulting APK runs, the fault
-is local to this machine's NDK/Hermes toolchain and the workaround in
-`scripts/build-standalone.sh` can be dropped. If it is blank too, this is an
-upstream bug and the reproduction above is ready to file.
-
-The `metro.config.js` stub is gated behind `EXPO_EMBED_DEV=1`, so it does not
-affect EAS builds.
+Tiny Day is available under the [MIT License](LICENSE).

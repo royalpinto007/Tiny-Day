@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest a focused improvement to Tiny Day
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What need would this address?
+      description: Describe the planning problem, not only the proposed interface.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Suggested approach
+      description: Explain how you imagine it working.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Product fit
+      options:
+        - label: This can preserve Tiny Day's offline-first design.
+          required: true
+        - label: This avoids streaks, guilt, and unnecessary pressure.
+          required: true
+        - label: I searched existing issues for a similar request.
+          required: true
