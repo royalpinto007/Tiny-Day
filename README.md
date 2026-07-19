@@ -57,6 +57,28 @@ npx expo start        # then press a for Android, i for iOS, w for web
 npm run typecheck     # tsc --noEmit
 ```
 
+## Build a standalone APK
+
+The app is fully offline — everything lives in AsyncStorage on the device — so
+it should not need a computer to run. To get an installable APK that launches
+with no Metro dev server:
+
+```bash
+scripts/build-standalone.sh            # -> TinyDay-standalone.apk
+adb install -r TinyDay-standalone.apk
+```
+
+Cold start is ~1s. Set `TINYDAY_KEYSTORE`, `TINYDAY_KEYSTORE_PASS` and
+`TINYDAY_KEY_ALIAS` to sign with your own key instead of the Android debug
+keystore.
+
+The script embeds a **development** JS bundle rather than a production one,
+because production bundles are currently broken on this stack (see below).
+`metro.config.js` stubs out the one dev-only module that hard-fails when no dev
+server is reachable, which is what makes embedding a dev bundle viable. The
+tradeoff is a larger bundle and dev-mode warnings; behaviour is otherwise
+identical, and the app is genuinely self-contained.
+
 ## Project layout
 
 ```
@@ -69,10 +91,9 @@ docs/screens/   the 65-screen design reference
 
 ## Startup time
 
-The app starts in ~1s once the JS bundle is local. In a Metro-backed debug
-build, expect ~10-15s instead: roughly 6.5s to download the 3.4MB dev bundle
-over adb and ~2.7s to evaluate it unminified. That cost is the dev server, not
-the app — a production bundle removes it entirely.
+A standalone build (see above) cold-starts in ~1s. A Metro-backed debug build
+takes ~10-15s instead: roughly 6.5s to download the 3.4MB dev bundle over adb
+and ~2.7s to evaluate it. That cost is the dev server, not the app.
 
 ## Known issue: production bundles render blank
 
