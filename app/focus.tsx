@@ -106,9 +106,9 @@ export default function FocusScreen() {
       </View>
 
       <View>
-        <View style={{ flexDirection: 'row', gap: t.spacing.md }}>
+        <Button title="Complete" onPress={complete} />
+        <View style={{ flexDirection: 'row', gap: t.spacing.md, marginTop: t.spacing.md }}>
           <Button title={paused ? 'Resume' : 'Pause'} kind="secondary" style={{ flex: 1 }} onPress={() => setPaused(!paused)} />
-          <Button title="Complete" style={{ flex: 1.2 }} onPress={complete} />
           <Button
             title="+10 min"
             kind="secondary"

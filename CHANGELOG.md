@@ -14,6 +14,11 @@ All notable changes to Tiny Day are documented here. The format follows
 - Play Store listing copy, privacy disclosures, graphic assets, and production
   release preparation.
 
+### Fixed
+
+- Focus mode now gives the Complete action a full-width row so its label does
+  not wrap on narrow Android screens or with larger text.
+
 ## [1.0.0] - 2026-07-19
 
 ### Added
