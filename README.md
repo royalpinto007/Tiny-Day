@@ -124,8 +124,10 @@ the app cannot (and should not) override it.
 
 Tiny Day stores planning data locally with AsyncStorage. It does not require an
 account and does not include cloud sync, advertising, or analytics. Local
-notifications are scheduled on the device. See [Security](SECURITY.md) for
-responsible vulnerability reporting and the current support policy.
+notifications are scheduled on the device. Read the public
+[Privacy Policy](https://royalpinto007.github.io/Tiny-Day/privacy-policy.html)
+and see [Security](SECURITY.md) for responsible vulnerability reporting and the
+current support policy.
 
 ## Contributing
 

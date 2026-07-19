@@ -11,6 +11,8 @@ All notable changes to Tiny Day are documented here. The format follows
 - Community documentation and GitHub contribution templates.
 - GitHub Actions validation for TypeScript and Expo project health on pushes
   and pull requests.
+- Play Store listing copy, privacy disclosures, graphic assets, and production
+  release preparation.
 
 ## [1.0.0] - 2026-07-19
 
