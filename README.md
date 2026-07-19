@@ -139,6 +139,22 @@ One run of a plain-JS probe *did* tick correctly, but that result could not be
 reproduced afterwards under the same conditions, so it should be treated as an
 artifact rather than a fix.
 
-Next step is a build on a known-good toolchain (`eas build -p android --profile
-preview`) to separate a local toolchain fault from an upstream bug. Until then,
-run the app with `npx expo start` + `npx expo run:android`.
+### Trying a known-good toolchain
+
+Everything above was bisected on one machine, so the open question is whether
+this is a local toolchain fault or an upstream bug. `eas.json` is committed with
+a `preview` profile that produces an installable APK, and `npx expo-doctor`
+passes all 20 checks, so the project is ready to build on Expo's servers:
+
+```bash
+npx eas-cli login          # needs your Expo account
+npx eas-cli build -p android --profile preview
+```
+
+That build uses a normal production bundle. If the resulting APK runs, the fault
+is local to this machine's NDK/Hermes toolchain and the workaround in
+`scripts/build-standalone.sh` can be dropped. If it is blank too, this is an
+upstream bug and the reproduction above is ready to file.
+
+The `metro.config.js` stub is gated behind `EXPO_EMBED_DEV=1`, so it does not
+affect EAS builds.
