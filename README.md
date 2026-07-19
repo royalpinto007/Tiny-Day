@@ -3,6 +3,7 @@
 A cozy daily planner. Your day, made manageable.
 
 [![GitHub release](https://img.shields.io/github/v/release/royalpinto007/Tiny-Day)](https://github.com/royalpinto007/Tiny-Day/releases/latest)
+[![CI](https://github.com/royalpinto007/Tiny-Day/actions/workflows/ci.yml/badge.svg)](https://github.com/royalpinto007/Tiny-Day/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-7E9B77.svg)](LICENSE)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2057-000020.svg)](https://expo.dev/)
 
