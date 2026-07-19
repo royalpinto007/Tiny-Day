@@ -34,7 +34,8 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
   const [timeOverride, setTimeOverride] = useState<number | null>();
   const [picker, setPicker] = useState<'date' | 'time' | null>(null);
   const [showOptions, setShowOptions] = useState(false);
-  const scheduledDate = dateOverride ?? parsed?.date ?? defaultDate;
+  const requestedDate = dateOverride ?? parsed?.date ?? defaultDate;
+  const scheduledDate = requestedDate < todayISO() ? todayISO() : requestedDate;
   const scheduledTime = timeOverride !== undefined ? timeOverride : parsed?.startMin ?? null;
 
   useEffect(() => {
@@ -57,7 +58,10 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
     const mode = picker;
     setPicker(null);
     if (event.type === 'dismissed' || !value || !mode) return;
-    if (mode === 'date') setDateOverride(todayISO(value));
+    if (mode === 'date') {
+      const selectedDate = todayISO(value);
+      setDateOverride(selectedDate < todayISO() ? todayISO() : selectedDate);
+    }
     else setTimeOverride(value.getHours() * 60 + value.getMinutes());
   };
 
@@ -117,7 +121,14 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           <Text variant="caption" color={t.colors.sageDeep}>Clear time</Text>
         </Pressable>
       )}
-      {picker && <DateTimePicker value={pickerValue} mode={picker} onChange={onPickerChange} />}
+      {picker && (
+        <DateTimePicker
+          value={pickerValue}
+          mode={picker}
+          minimumDate={picker === 'date' ? new Date(`${todayISO()}T00:00:00`) : undefined}
+          onChange={onPickerChange}
+        />
+      )}
       {parsed && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: t.spacing.lg }}>
           <PlainChip label={durationLabel(parsed.durationMin)} />

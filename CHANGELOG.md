@@ -20,6 +20,7 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ### Fixed
 
+- New Task no longer permits selecting or saving dates earlier than today.
 - Focus mode now gives the Complete action a full-width row so its label does
   not wrap on narrow Android screens or with larger text.
 - Quick Add now defaults to tomorrow when opened from the Plan tab instead of
