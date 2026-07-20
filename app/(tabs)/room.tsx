@@ -7,7 +7,7 @@ import { Button } from '../../components/Button';
 import { Room, RoomTimeState, useLiveRoomState } from '../../components/Room';
 import { useIsTablet, useTheme } from '../../theme';
 import { useTasks, tasksForDate } from '../../lib/store/tasks';
-import { minToLabel, todayISO } from '../../lib/types';
+import { addDaysISO, minToLabel, Mood, todayISO } from '../../lib/types';
 
 /** One quiet line about where the day stands — never a nag, never a score. */
 function statusLine(total: number, done: number, state: RoomTimeState): string {
@@ -29,12 +29,20 @@ const TIME_NOTE: Record<RoomTimeState, string> = {
   night: 'Night · stars and cosy dark',
 };
 
+const MOOD_LABEL: Record<Mood, string> = {
+  calm: 'Calm',
+  productive: 'Productive',
+  chaotic: 'Chaotic',
+  heavy: 'Heavy',
+};
+
 export default function RoomScreen() {
   const t = useTheme();
   const router = useRouter();
   const isTablet = useIsTablet();
   const state = useLiveRoomState();
   const tasks = useTasks((s) => s.tasks);
+  const snapshots = useTasks((s) => s.snapshots);
 
   const today = useMemo(() => tasksForDate(tasks, todayISO()), [tasks]);
   const done = today.filter((x) => x.status === 'completed').length;
@@ -48,6 +56,17 @@ export default function RoomScreen() {
       x.status !== 'rescheduled' &&
       (x.startMin == null || x.startMin >= nowMin)
   );
+
+  // The six days before today, oldest first — only days actually closed out.
+  const past = useMemo(() => {
+    const out = [];
+    for (let i = 6; i >= 1; i--) {
+      const iso = addDaysISO(todayISO(), -i);
+      const snap = snapshots[iso];
+      if (snap) out.push(snap);
+    }
+    return out;
+  }, [snapshots]);
 
   return (
     <Screen>
@@ -102,6 +121,48 @@ export default function RoomScreen() {
           onPress={() => router.push('/planning')}
           style={{ marginTop: t.spacing.xl }}
         />
+      )}
+
+      <Text variant="title" style={{ marginTop: t.spacing.xxl }}>
+        The days before
+      </Text>
+      {past.length === 0 ? (
+        <Text variant="body" color={t.colors.sub} style={{ marginTop: t.spacing.sm }}>
+          Your days gather here as you close them in the evening check-in. Nothing
+          to look back on yet.
+        </Text>
+      ) : (
+        <>
+          <Text variant="body" color={t.colors.sub} style={{ marginTop: t.spacing.sm }}>
+            How the week has been feeling.
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: t.spacing.md,
+              marginTop: t.spacing.lg,
+            }}
+          >
+            {past.map((snap) => {
+              const ratio = snap.plannedCount ? snap.completedCount / snap.plannedCount : 0;
+              const d = new Date(`${snap.date}T12:00:00`);
+              return (
+                <View key={snap.date} style={{ width: isTablet ? 160 : 100 }}>
+                  {/* height tracks the scene's 320:170 ratio so nothing crops */}
+                  <Room state="afternoon" completion={ratio} height={isTablet ? 85 : 54} />
+                  <Text variant="caption" style={{ marginTop: 6 }}>
+                    {d.toLocaleDateString('en-US', { weekday: 'short' })}
+                    {snap.mood ? ` · ${MOOD_LABEL[snap.mood]}` : ''}
+                  </Text>
+                  <Text variant="caption" color={t.colors.sub}>
+                    {snap.completedCount} of {snap.plannedCount} done
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </>
       )}
     </Screen>
   );
