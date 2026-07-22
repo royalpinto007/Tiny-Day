@@ -34,6 +34,7 @@ export default function PlanScreen() {
   const tomorrow = useMemo(() => tasksForDate(tasks, tomorrowISO), [tasks, tomorrowISO]);
   const backlog = useMemo(() => backlogTasks(tasks), [tasks]);
   const [newRoutine, setNewRoutine] = useState('');
+  const [expandedDate, setExpandedDate] = useState<string | null>(null);
 
   return (
     <Screen>
@@ -88,22 +89,44 @@ export default function PlanScreen() {
             const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
               : `${d.toLocaleDateString('en-US', { weekday: 'long' })}, ${monthDayLabel(d)}`;
             return (
-              <Card key={iso}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="cardTitle">{label}</Text>
-                  <Text variant="caption" color={t.colors.sub}>
-                    {dayTasks.length === 0 ? 'open' : `${dayTasks.length} planned`}
-                  </Text>
-                </View>
-                {dayTasks.slice(0, 3).map((x) => (
-                  <Text key={x.id} variant="body" color={t.colors.sub} style={{ marginTop: 4 }}>
-                    {PRIORITY_GLYPH[x.priority]} {x.name}{x.startMin != null ? ` · ${minToLabel(x.startMin)}` : ''}
-                  </Text>
-                ))}
-                {dayTasks.length > 3 && (
-                  <Text variant="caption" color={t.colors.faint} style={{ marginTop: 4 }}>
-                    + {dayTasks.length - 3} more
-                  </Text>
+              <Card key={iso} style={{ padding: 0, overflow: 'hidden' }}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: expandedDate === iso }}
+                  accessibilityLabel={`${label}, ${dayTasks.length} tasks`}
+                  onPress={() => setExpandedDate(expandedDate === iso ? null : iso)}
+                  style={{ padding: t.spacing.lg, minHeight: 72, justifyContent: 'center' }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1 }}>
+                      <Text variant="cardTitle">{label}</Text>
+                      <Text variant="caption" color={t.colors.sub} style={{ marginTop: 2 }}>
+                        {dayTasks.length === 0 ? 'No tasks yet' : `${dayTasks.length} ${dayTasks.length === 1 ? 'task' : 'tasks'}`}
+                      </Text>
+                    </View>
+                    <Text variant="bodyBold" color={t.colors.sageDeep}>
+                      {expandedDate === iso ? 'Hide ︿' : 'View ﹀'}
+                    </Text>
+                  </View>
+                </Pressable>
+                {expandedDate === iso && (
+                  <View style={{ gap: t.spacing.sm, paddingHorizontal: t.spacing.md, paddingBottom: t.spacing.md }}>
+                    {dayTasks.length === 0 ? (
+                      <View style={{ padding: t.spacing.md, backgroundColor: t.colors.surfaceAlt, borderRadius: t.radius.md }}>
+                        <Text variant="body" color={t.colors.sub} center>
+                          This day is free. Use + to add something when you’re ready.
+                        </Text>
+                      </View>
+                    ) : dayTasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        compact
+                        onPress={() => router.push(`/task/${task.id}`)}
+                        onToggleComplete={() => setStatus(task.id, task.status === 'completed' ? 'not_started' : 'completed')}
+                      />
+                    ))}
+                  </View>
                 )}
               </Card>
             );

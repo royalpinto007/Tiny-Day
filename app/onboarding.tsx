@@ -154,6 +154,18 @@ export default function OnboardingScreen() {
               <TimeStepper label="Dinner is around" value={dinner} onChange={setDinner} />
               <TimeStepper label="I wind down by" value={sleep} onChange={setSleep} />
             </Card>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                setWake(7 * 60);
+                setLunch(12 * 60 + 30);
+                setDinner(19 * 60);
+                setSleep(23 * 60);
+              }}
+              style={{ minHeight: 44, alignSelf: 'flex-end', justifyContent: 'center' }}
+            >
+              <Text variant="bodyBold" color={t.colors.sageDeep}>Reset to defaults</Text>
+            </Pressable>
             <Button title="Continue" onPress={next} style={{ marginTop: t.spacing.xl }} />
           </>
         )}

@@ -29,6 +29,8 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
     [defaultDate, text]
   );
   const [reminder, setReminder] = useState<number | null>(15);
+  const [customReminder, setCustomReminder] = useState(false);
+  const [customReminderText, setCustomReminderText] = useState('45');
   const [flexible, setFlexible] = useState(true);
   const [dateOverride, setDateOverride] = useState<string>();
   const [timeOverride, setTimeOverride] = useState<number | null>();
@@ -42,6 +44,7 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
     setDateOverride(undefined);
     setTimeOverride(undefined);
     setPicker(null);
+    setCustomReminder(false);
   }, [defaultDate, visible]);
 
   const pickerValue = useMemo(() => {
@@ -138,7 +141,10 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Reminder: ${reminder == null ? 'none' : `${reminder} min before`}. Tap to change`}
-          onPress={() => setReminder(reminder === 15 ? 30 : reminder === 30 ? null : 15)}
+          onPress={() => {
+            setCustomReminder(false);
+            setReminder(reminder === 15 ? 30 : reminder === 30 ? 60 : reminder === 60 ? null : 15);
+          }}
           style={{
             flex: 1, backgroundColor: t.colors.surface, borderRadius: t.radius.md,
             borderWidth: 1, borderColor: t.colors.border, padding: t.spacing.md,
@@ -162,8 +168,68 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           <Text variant="taskTitle" style={{ marginTop: 4 }}>{flexible ? 'Can move' : 'Fixed'}</Text>
         </Pressable>
       </View>
+      <View style={{ marginTop: t.spacing.sm }}>
+        <Text variant="caption" color={t.colors.sub}>Reminder</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+          {([
+            { label: '15m', value: 15 },
+            { label: '30m', value: 30 },
+            { label: '1h', value: 60 },
+            { label: 'None', value: null },
+          ] as { label: string; value: number | null }[]).map((option) => (
+            <ReminderOption
+              key={option.label}
+              label={option.label}
+              selected={!customReminder && reminder === option.value}
+              onPress={() => { setCustomReminder(false); setReminder(option.value); }}
+            />
+          ))}
+          <ReminderOption
+            label="Custom"
+            selected={customReminder}
+            onPress={() => { setCustomReminder(true); setReminder(Number(customReminderText) || 45); }}
+          />
+        </View>
+        {customReminder && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            <TextField
+              value={customReminderText}
+              onChangeText={(value) => {
+                const digits = value.replace(/\D/g, '').slice(0, 4);
+                setCustomReminderText(digits);
+                const minutes = Number(digits);
+                setReminder(minutes > 0 ? Math.min(minutes, 1440) : null);
+              }}
+              keyboardType="number-pad"
+              accessibilityLabel="Custom reminder minutes before"
+              style={{ width: 92, minHeight: 44, paddingVertical: 8 }}
+            />
+            <Text variant="body" color={t.colors.sub}>minutes before</Text>
+          </View>
+        )}
+      </View>
       <Button title="Add task" onPress={submit} disabled={!parsed} style={{ marginTop: t.spacing.lg }} />
     </BottomSheet>
+  );
+}
+
+function ReminderOption({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      style={{
+        minHeight: 38,
+        justifyContent: 'center',
+        paddingHorizontal: 12,
+        borderRadius: t.radius.pill,
+        backgroundColor: selected ? t.colors.sage : t.colors.surfaceAlt,
+      }}
+    >
+      <Text variant="bodyBold" color={selected ? t.colors.onSage : t.colors.sub} style={{ fontSize: 12 }}>{label}</Text>
+    </Pressable>
   );
 }
 
