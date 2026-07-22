@@ -9,6 +9,7 @@ All notable changes to Tiny Day are documented here. The format follows
 - Replaced the one-tap “move to tomorrow” task action with an explicit rescheduling sheet that requires a valid date and future time.
 - Completed tasks whose scheduled slot has passed now explain that they must be rescheduled before becoming active again, instead of offering a misleading “Mark not done” action.
 - Replaced the font-dependent time-picker close glyph with a centered, touch-friendly vector close button.
+- Embedded the complete daily timeline—including finished tasks—directly on Today, replacing the separate timeline, reminder, and evening check-in shortcut row.
 
 ### Added
 

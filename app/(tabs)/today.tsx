@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Pressable, View } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Screen } from '../../components/Screen';
 import { Text } from '../../components/Text';
 import { Card } from '../../components/Card';
@@ -14,6 +14,8 @@ import { minToLabel, PRIORITY_GLYPH, Task, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
 import { longDateLabel } from '../../lib/format';
 import { BrandMark } from '../../components/BrandMark';
+import { TaskCard } from '../../components/TaskCard';
+import { freeSlots } from '../../lib/schedule';
 
 function greeting(name: string): string {
   const h = new Date().getHours();
@@ -29,6 +31,8 @@ export default function TodayScreen() {
   const router = useRouter();
   const toast = useToast();
   const name = useSettings((s) => s.name);
+  const wakeMin = useSettings((s) => s.wakeMin);
+  const sleepMin = useSettings((s) => s.sleepMin);
   const tasks = useTasks((s) => s.tasks);
   const setStatus = useTasks((s) => s.setStatus);
   const setFocusTask = useTasks((s) => s.setFocusTask);
@@ -36,6 +40,7 @@ export default function TodayScreen() {
   const today = useMemo(() => tasksForDate(tasks, todayISO()), [tasks]);
   const open = today.filter((x) => x.status !== 'completed' && x.status !== 'skipped' && x.status !== 'rescheduled');
   const done = today.filter((x) => x.status === 'completed');
+  const free = useMemo(() => freeSlots(today, wakeMin, sleepMin, 45), [sleepMin, today, wakeMin]);
   const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
 
   const current: Task | undefined =
@@ -83,7 +88,6 @@ export default function TodayScreen() {
           <Text variant="body" color={t.colors.sub} center style={{ marginTop: 6 }}>
             The room is glowing. You did enough for today.
           </Text>
-          <Button title="Evening check-in" onPress={() => router.push('/evening')} style={{ marginTop: t.spacing.lg, alignSelf: 'stretch' }} />
         </Card>
       )}
 
@@ -175,22 +179,52 @@ export default function TodayScreen() {
       )}
 
       {today.length > 0 && (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: t.spacing.lg }}>
-          <Link href="/timeline" asChild>
-            <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text variant="bodyBold" color={t.colors.sageDeep}>See full timeline →</Text>
-            </Pressable>
-          </Link>
-          <Link href="/notifications" asChild>
-            <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text variant="bodyBold" color={t.colors.sub}>Reminders</Text>
-            </Pressable>
-          </Link>
-          <Link href="/evening" asChild>
-            <Pressable accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text variant="bodyBold" color={t.colors.sub}>Evening check-in</Text>
-            </Pressable>
-          </Link>
+        <View style={{ marginTop: t.spacing.xl }}>
+          <Text variant="title">Today’s timeline</Text>
+          <Text variant="caption" color={t.colors.sub} style={{ marginTop: 4 }}>
+            Everything planned today, including what you’ve finished.
+          </Text>
+          <View style={{ gap: t.spacing.md, marginTop: t.spacing.lg }}>
+            {today.map((task) => {
+              const completedSlotPassed = task.status === 'completed' && task.startMin != null
+                && task.startMin + task.durationMin <= nowMin;
+              return (
+                <View key={task.id} style={{ flexDirection: 'row', gap: t.spacing.md }}>
+                  <View style={{ width: 48, paddingTop: 14 }}>
+                    {task.startMin != null ? (
+                      <>
+                        <Text variant="bodyBold" color={t.colors.sub}>{minToLabel(task.startMin).replace(/ (AM|PM)/, '')}</Text>
+                        <Text variant="caption" color={t.colors.faint}>{task.durationMin}m</Text>
+                      </>
+                    ) : (
+                      <Text variant="caption" color={t.colors.faint}>any{'\n'}time</Text>
+                    )}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <TaskCard
+                      task={task}
+                      onPress={() => router.push(`/task/${task.id}`)}
+                      toggleAccessibilityLabel={completedSlotPassed ? `View ${task.name} to reschedule it` : undefined}
+                      onToggleComplete={() => {
+                        if (completedSlotPassed) {
+                          router.push(`/task/${task.id}`);
+                          return;
+                        }
+                        setStatus(task.id, task.status === 'completed' ? 'not_started' : 'completed');
+                      }}
+                    />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+          {free.length > 0 && (
+            <View style={{ marginTop: t.spacing.lg, borderWidth: 1.5, borderStyle: 'dashed', borderColor: t.colors.borderStrong, borderRadius: t.radius.md, padding: t.spacing.lg }}>
+              <Text variant="body" color={t.colors.sub} center>
+                Free slot · {minToLabel(free[0][0])} – {minToLabel(free[0][1])}
+              </Text>
+            </View>
+          )}
         </View>
       )}
     </Screen>

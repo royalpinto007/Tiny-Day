@@ -11,9 +11,10 @@ interface Props {
   onPress?: () => void;
   onToggleComplete?: () => void;
   compact?: boolean;
+  toggleAccessibilityLabel?: string;
 }
 
-export function TaskCard({ task, onPress, onToggleComplete, compact }: Props) {
+export function TaskCard({ task, onPress, onToggleComplete, compact, toggleAccessibilityLabel }: Props) {
   const t = useTheme();
   const c = t.colors;
   const done = task.status === 'completed';
@@ -23,7 +24,7 @@ export function TaskCard({ task, onPress, onToggleComplete, compact }: Props) {
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: done }}
-          accessibilityLabel={done ? `Mark ${task.name} as not done` : `Complete ${task.name}`}
+          accessibilityLabel={toggleAccessibilityLabel ?? (done ? `Mark ${task.name} as not done` : `Complete ${task.name}`)}
           hitSlop={8}
           onPress={() => {
             onToggleComplete?.();
