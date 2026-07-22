@@ -11,12 +11,17 @@ import { Appearance, PlanningStyle, useSettings } from '../../lib/store/settings
 import { useTasks } from '../../lib/store/tasks';
 import { minToLabel, todayISO } from '../../lib/types';
 import { connectAndSyncCalendar } from '../../lib/calendar';
+import { useToast } from '../../components/Toast';
 
 export default function ProfileScreen() {
   const t = useTheme();
   const router = useRouter();
   const s = useSettings();
+  const toast = useToast();
   const snapshots = useTasks((x) => x.snapshots);
+  const hasDemoData = useTasks((x) => x.tasks.some((task) => task.isDemo));
+  const loadDemoData = useTasks((x) => x.loadDemoData);
+  const clearDemoData = useTasks((x) => x.clearDemoData);
   const [calendarBusy, setCalendarBusy] = useState(false);
   const [calendarMessage, setCalendarMessage] = useState('');
   const stats = useMemo(() => {
@@ -151,6 +156,38 @@ export default function ProfileScreen() {
         <SettingRow label="Private lock screen" note="Reminders say “Important reminder due now” instead of the task name.">
           <Toggle value={s.privacyMode} onChange={(v) => s.set({ privacyMode: v })} label="Private lock screen" />
         </SettingRow>
+      </Card>
+
+      <Text variant="title" style={{ marginTop: t.spacing.xl }}>Testing</Text>
+      <Card style={{ marginTop: t.spacing.md }}>
+        <Text variant="body" color={t.colors.sub}>
+          Load sample tasks, routines, and recent days to exercise Today, Plan,
+          Focus, Room, Backlog, and task recovery. Your own data is left untouched.
+        </Text>
+        <View style={{ flexDirection: 'row', gap: t.spacing.md, marginTop: t.spacing.md }}>
+          <Button
+            title={hasDemoData ? 'Reset demo data' : 'Load demo data'}
+            kind="secondary"
+            compact
+            style={{ flex: 1 }}
+            onPress={() => {
+              loadDemoData();
+              toast.show({ message: hasDemoData ? 'Demo data reset.' : 'Demo data loaded.' });
+            }}
+          />
+          {hasDemoData && (
+            <Button
+              title="Remove demo"
+              kind="tertiary"
+              compact
+              style={{ flex: 1 }}
+              onPress={() => {
+                clearDemoData();
+                toast.show({ message: 'Demo data removed. Your data is safe.' });
+              }}
+            />
+          )}
+        </View>
       </Card>
 
       <Text variant="caption" color={t.colors.faint} center style={{ marginTop: t.spacing.xl }}>

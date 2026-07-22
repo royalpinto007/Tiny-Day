@@ -56,6 +56,9 @@ export default function TodayScreen() {
         <View style={{ flex: 1 }}>
           <Text variant="display">{greeting(name)}</Text>
           <Text variant="body" color={t.colors.sub} style={{ marginTop: 2 }}>{longDateLabel()}</Text>
+          <Text variant="caption" color={t.colors.sub} style={{ marginTop: 4 }}>
+            Do today’s tasks here. Use Plan to arrange upcoming days.
+          </Text>
         </View>
         <BrandMark size={52} />
       </View>

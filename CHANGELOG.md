@@ -15,6 +15,8 @@ All notable changes to Tiny Day are documented here. The format follows
 - Custom reminder lead times in New Task.
 - Expandable Week days in Plan with full task controls, including restoring a
   task accidentally marked complete.
+- Reversible demo tasks, routines, and day history from Profile for testing all
+  major flows without changing personal data.
 - Optional, read-only device calendar connection with permission handling,
   seven-day event import, duplicate protection, manual resync, and disconnect.
 - Community documentation and GitHub contribution templates.
@@ -27,13 +29,19 @@ All notable changes to Tiny Day are documented here. The format follows
 
 - Android release builds now exclude emulator-only x86 binaries and enable R8
   code minification plus unused-resource shrinking to reduce APK size while
-  retaining support for modern and older ARM phones.
+  targeting the ARM64 architecture used by current test devices.
+- Today, Plan, and Room now explain their roles and how today’s completion
+  progress connects them.
+- Today’s task time picker lists only future 15-minute slots; elapsed times are
+  neither shown nor saved.
+- Font loading now references only the five faces actually used by the UI.
 
 ### Fixed
 
 - Onboarding day-shape setup now provides a one-tap reset to default times.
 - Replaced the unclear static “open” Week cards with explicit View/Hide day
   controls and useful empty-day guidance.
+- Replaced font-based Week arrows with consistently centered vector chevrons.
 - Bottom sheets now scroll when their content and keyboard cannot fit on a
   short phone display.
 - New Task no longer permits selecting or saving dates earlier than today.

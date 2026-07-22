@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DaySnapshot, makeId, Routine, Task, todayISO } from '../types';
+import { addDaysISO, DaySnapshot, makeId, Routine, Task, todayISO } from '../types';
 
 interface TasksState {
   tasks: Task[];
@@ -23,6 +23,8 @@ interface TasksState {
   saveSnapshot: (snap: DaySnapshot) => void;
   setFocusTask: (id: string | null) => void;
   seedRoutinesForDate: (date: string) => void;
+  loadDemoData: () => void;
+  clearDemoData: () => void;
 }
 
 export const useTasks = create<TasksState>()(
@@ -51,6 +53,7 @@ export const useTasks = create<TasksState>()(
           subtasks: partial.subtasks ?? [],
           routineId: partial.routineId,
           calendarEventKey: partial.calendarEventKey,
+          isDemo: partial.isDemo,
           createdAt: Date.now(),
         };
         set((s) => ({ tasks: [...s.tasks, task] }));
@@ -77,6 +80,7 @@ export const useTasks = create<TasksState>()(
           durationMin: partial.durationMin ?? 30,
           days: partial.days ?? [1, 2, 3, 4, 5],
           enabled: partial.enabled ?? true,
+          isDemo: partial.isDemo,
         };
         set((s) => ({ routines: [...s.routines, routine] }));
         return routine;
@@ -113,6 +117,61 @@ export const useTasks = create<TasksState>()(
           routineSeededDates: [...s.routineSeededDates.slice(-30), date],
         });
       },
+
+      loadDemoData: () => {
+        const s = get();
+        const today = todayISO();
+        const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+        const demoTask = (partial: Partial<Task> & Pick<Task, 'name' | 'date'>): Task => ({
+          id: makeId('demo'),
+          name: partial.name,
+          date: partial.date,
+          startMin: partial.startMin ?? null,
+          durationMin: partial.durationMin ?? 30,
+          priority: partial.priority ?? 'should',
+          category: partial.category ?? 'personal',
+          status: partial.status ?? 'not_started',
+          flexibility: partial.flexibility ?? 'flexible',
+          reminderMinBefore: partial.reminderMinBefore ?? null,
+          notes: partial.notes,
+          subtasks: partial.subtasks ?? [],
+          createdAt: Date.now(),
+          completedAt: partial.completedAt,
+          isDemo: true,
+        });
+        const demoTasks: Task[] = [
+          demoTask({ name: 'Morning stretch', date: today, startMin: 8 * 60, durationMin: 15, category: 'health', status: 'completed', completedAt: Date.now() - 3600000 }),
+          demoTask({ name: 'Review project proposal', date: today, startMin: Math.min(23 * 60, Math.ceil((nowMin + 15) / 15) * 15), durationMin: 45, priority: 'must', category: 'work', flexibility: 'fixed', reminderMinBefore: 15, subtasks: [{ id: makeId('sub'), name: 'Check budget', done: true }, { id: makeId('sub'), name: 'Send final notes', done: false }] }),
+          demoTask({ name: 'Pick up groceries', date: today, durationMin: 30, category: 'errand', priority: 'optional' }),
+          demoTask({ name: 'Dentist appointment', date: addDaysISO(today, 1), startMin: 10 * 60 + 30, durationMin: 60, category: 'appointment', priority: 'must', flexibility: 'fixed', reminderMinBefore: 30 }),
+          demoTask({ name: 'Write weekly update', date: addDaysISO(today, 1), startMin: 15 * 60, durationMin: 45, category: 'work' }),
+          demoTask({ name: 'Evening walk', date: addDaysISO(today, 2), startMin: 18 * 60, durationMin: 30, category: 'health' }),
+          demoTask({ name: 'Call family', date: addDaysISO(today, 3), startMin: 20 * 60, durationMin: 30, category: 'personal' }),
+          demoTask({ name: 'Read saved article', date: null, durationMin: 25, category: 'study', priority: 'optional' }),
+        ];
+        const demoRoutines: Routine[] = [{
+          id: makeId('demo-routine'), name: 'Plan tomorrow', category: 'routine',
+          startMin: 21 * 60, durationMin: 15, days: [1, 2, 3, 4, 5], enabled: true, isDemo: true,
+        }];
+        const demoSnapshots: DaySnapshot[] = [
+          { date: addDaysISO(today, -1), mood: 'productive', plannedCount: 5, completedCount: 4, focusMinutes: 80, closedAt: Date.now() - 86400000, isDemo: true },
+          { date: addDaysISO(today, -2), mood: 'calm', plannedCount: 4, completedCount: 3, focusMinutes: 45, closedAt: Date.now() - 172800000, isDemo: true },
+          { date: addDaysISO(today, -3), mood: 'heavy', plannedCount: 6, completedCount: 2, focusMinutes: 20, closedAt: Date.now() - 259200000, isDemo: true },
+        ];
+        const snapshots = Object.fromEntries(Object.entries(s.snapshots).filter(([, snap]) => !snap.isDemo));
+        for (const snap of demoSnapshots) snapshots[snap.date] = snap;
+        set({
+          tasks: [...s.tasks.filter((task) => !task.isDemo), ...demoTasks],
+          routines: [...s.routines.filter((routine) => !routine.isDemo), ...demoRoutines],
+          snapshots,
+        });
+      },
+
+      clearDemoData: () => set((s) => ({
+        tasks: s.tasks.filter((task) => !task.isDemo),
+        routines: s.routines.filter((routine) => !routine.isDemo),
+        snapshots: Object.fromEntries(Object.entries(s.snapshots).filter(([, snap]) => !snap.isDemo)),
+      })),
     }),
     {
       name: 'tinyday-data',

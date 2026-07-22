@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Keyboard, Pressable, View } from 'react-native';
+import { FlatList, Keyboard, Modal, Pressable, View } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from '../theme';
 import { BottomSheet } from './BottomSheet';
@@ -34,48 +34,52 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
   const [flexible, setFlexible] = useState(true);
   const [dateOverride, setDateOverride] = useState<string>();
   const [timeOverride, setTimeOverride] = useState<number | null>();
-  const [picker, setPicker] = useState<'date' | 'time' | null>(null);
+  const [picker, setPicker] = useState<'date' | null>(null);
+  const [timeChoicesVisible, setTimeChoicesVisible] = useState(false);
   const requestedDate = dateOverride ?? parsed?.date ?? defaultDate;
   const scheduledDate = requestedDate < todayISO() ? todayISO() : requestedDate;
-  const scheduledTime = timeOverride !== undefined ? timeOverride : parsed?.startMin ?? null;
+  const requestedTime = timeOverride !== undefined ? timeOverride : parsed?.startMin ?? null;
+  const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+  const scheduledTime = scheduledDate === todayISO() && requestedTime != null && requestedTime <= nowMin
+    ? null
+    : requestedTime;
 
   useEffect(() => {
     if (!visible) return;
     setDateOverride(undefined);
     setTimeOverride(undefined);
     setPicker(null);
+    setTimeChoicesVisible(false);
     setCustomReminder(false);
   }, [defaultDate, visible]);
 
   const pickerValue = useMemo(() => {
-    if (picker === 'date') return new Date(`${scheduledDate}T12:00:00`);
-    const value = new Date();
-    const minutes = scheduledTime ?? 9 * 60;
-    value.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
-    return value;
+    return new Date(`${scheduledDate}T12:00:00`);
   }, [picker, scheduledDate, scheduledTime]);
 
   const onPickerChange = (event: DateTimePickerEvent, value?: Date) => {
     const mode = picker;
     setPicker(null);
     if (event.type === 'dismissed' || !value || !mode) return;
-    if (mode === 'date') {
-      const selectedDate = todayISO(value);
-      setDateOverride(selectedDate < todayISO() ? todayISO() : selectedDate);
-    }
-    else setTimeOverride(value.getHours() * 60 + value.getMinutes());
+    const selectedDate = todayISO(value);
+    setDateOverride(selectedDate < todayISO() ? todayISO() : selectedDate);
   };
 
   const submit = () => {
     if (!parsed) return;
+    const current = new Date();
+    const currentMinutes = current.getHours() * 60 + current.getMinutes();
+    const submissionTime = scheduledDate === todayISO() && scheduledTime != null && scheduledTime <= currentMinutes
+      ? null
+      : scheduledTime;
     const task = addTask({
       name: parsed.name,
       date: scheduledDate,
-      startMin: scheduledTime,
+      startMin: submissionTime,
       durationMin: parsed.durationMin,
       priority: parsed.priority,
       category: parsed.category,
-      flexibility: scheduledTime == null && flexible && parsed.flexibility !== 'fixed' ? 'flexible' : 'fixed',
+      flexibility: submissionTime == null && flexible && parsed.flexibility !== 'fixed' ? 'flexible' : 'fixed',
       reminderMinBefore: reminder,
     });
     setText('');
@@ -114,7 +118,7 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           label="Time"
           value={scheduledTime == null ? 'Any time' : minToLabel(scheduledTime)}
           accessibilityLabel={`Time: ${scheduledTime == null ? 'any time' : minToLabel(scheduledTime)}. Tap to change`}
-          onPress={() => { Keyboard.dismiss(); setPicker('time'); }}
+          onPress={() => { Keyboard.dismiss(); setTimeChoicesVisible(true); }}
         />
       </View>
       {scheduledTime != null && (
@@ -130,6 +134,16 @@ export function QuickAddSheet({ visible, onClose, defaultDate = todayISO() }: Pr
           onChange={onPickerChange}
         />
       )}
+      <TimeChoiceModal
+        visible={timeChoicesVisible}
+        date={scheduledDate}
+        selected={scheduledTime}
+        onClose={() => setTimeChoicesVisible(false)}
+        onSelect={(minutes) => {
+          setTimeOverride(minutes);
+          setTimeChoicesVisible(false);
+        }}
+      />
       {parsed && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: t.spacing.lg }}>
           <PlainChip label={durationLabel(parsed.durationMin)} />
@@ -230,6 +244,80 @@ function ReminderOption({ label, selected, onPress }: { label: string; selected:
     >
       <Text variant="bodyBold" color={selected ? t.colors.onSage : t.colors.sub} style={{ fontSize: 12 }}>{label}</Text>
     </Pressable>
+  );
+}
+
+function TimeChoiceModal({ visible, date, selected, onClose, onSelect }: {
+  visible: boolean;
+  date: string;
+  selected: number | null;
+  onClose: () => void;
+  onSelect: (minutes: number | null) => void;
+}) {
+  const t = useTheme();
+  const times = useMemo(() => {
+    const now = new Date();
+    const minimum = date === todayISO()
+      ? Math.ceil((now.getHours() * 60 + now.getMinutes() + 1) / 15) * 15
+      : 0;
+    return Array.from({ length: 96 }, (_, index) => index * 15).filter((minutes) => minutes >= minimum);
+  }, [date, visible]);
+
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <Pressable
+        accessibilityLabel="Close time picker"
+        onPress={onClose}
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(30,26,24,0.45)' }}
+      />
+      <View style={{ flex: 1, justifyContent: 'flex-end' }} pointerEvents="box-none">
+        <View style={{ maxHeight: '72%', backgroundColor: t.colors.bg, borderTopLeftRadius: t.radius.lg + 4, borderTopRightRadius: t.radius.lg + 4, padding: t.spacing.lg }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: t.spacing.md }}>
+            <View>
+              <Text variant="title">Choose a time</Text>
+              <Text variant="caption" color={t.colors.sub} style={{ marginTop: 2 }}>
+                {date === todayISO() ? 'Only remaining times today are shown.' : dateButtonLabel(date)}
+              </Text>
+            </View>
+            <Pressable accessibilityRole="button" onPress={onClose} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+              <Text variant="title" color={t.colors.sub}>×</Text>
+            </Pressable>
+          </View>
+          <FlatList
+            data={times}
+            keyExtractor={(minutes) => String(minutes)}
+            numColumns={3}
+            columnWrapperStyle={{ gap: 8 }}
+            contentContainerStyle={{ gap: 8, paddingBottom: t.spacing.xl }}
+            keyboardShouldPersistTaps="handled"
+            ListHeaderComponent={(
+              <Pressable
+                accessibilityRole="radio"
+                accessibilityState={{ selected: selected == null }}
+                onPress={() => onSelect(null)}
+                style={{ minHeight: 44, borderRadius: t.radius.md, alignItems: 'center', justifyContent: 'center', marginBottom: 8, backgroundColor: selected == null ? t.colors.sage : t.colors.surfaceAlt }}
+              >
+                <Text variant="bodyBold" color={selected == null ? t.colors.onSage : t.colors.sub}>Any time</Text>
+              </Pressable>
+            )}
+            ListEmptyComponent={<Text variant="body" color={t.colors.sub} center>No future time remains today. Choose another date or Any time.</Text>}
+            renderItem={({ item }) => {
+              const active = selected === item;
+              return (
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
+                  onPress={() => onSelect(item)}
+                  style={{ flex: 1, minHeight: 44, borderRadius: t.radius.md, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? t.colors.sage : t.colors.surfaceAlt }}
+                >
+                  <Text variant="bodyBold" color={active ? t.colors.onSage : t.colors.sub}>{minToLabel(item)}</Text>
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+      </View>
+    </Modal>
   );
 }
 

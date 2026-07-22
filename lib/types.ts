@@ -52,6 +52,8 @@ export interface Task {
   routineId?: string;
   /** stable device-calendar event occurrence key, used to avoid duplicate imports */
   calendarEventKey?: string;
+  /** true for reversible sample content loaded from Profile during testing */
+  isDemo?: boolean;
   createdAt: number;
   completedAt?: number;
 }
@@ -65,6 +67,7 @@ export interface Routine {
   /** 0 = Sunday … 6 = Saturday */
   days: number[];
   enabled: boolean;
+  isDemo?: boolean;
 }
 
 export interface DaySnapshot {
@@ -76,6 +79,7 @@ export interface DaySnapshot {
   completedCount: number;
   focusMinutes: number;
   closedAt?: number;
+  isDemo?: boolean;
 }
 
 export const PRIORITY_GLYPH: Record<Priority, string> = {

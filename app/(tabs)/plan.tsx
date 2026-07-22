@@ -13,6 +13,7 @@ import { backlogTasks, tasksForDate, useTasks } from '../../lib/store/tasks';
 import { addDaysISO, CATEGORY_LABEL, minToLabel, PRIORITY_GLYPH, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
 import { monthDayLabel } from '../../lib/format';
+import Svg, { Path } from 'react-native-svg';
 
 type ViewKey = 'tomorrow' | 'week' | 'backlog' | 'routines';
 const DAY_NAMES = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -39,6 +40,9 @@ export default function PlanScreen() {
   return (
     <Screen>
       <Text variant="display">Plan</Text>
+      <Text variant="body" color={t.colors.sub} style={{ marginTop: 4 }}>
+        Arrange what comes next. Today is for doing; Room reflects today’s progress.
+      </Text>
       <SegmentedControl<ViewKey>
         options={[
           { key: 'tomorrow', label: 'Tomorrow' },
@@ -104,9 +108,12 @@ export default function PlanScreen() {
                         {dayTasks.length === 0 ? 'No tasks yet' : `${dayTasks.length} ${dayTasks.length === 1 ? 'task' : 'tasks'}`}
                       </Text>
                     </View>
-                    <Text variant="bodyBold" color={t.colors.sageDeep}>
-                      {expandedDate === iso ? 'Hide ︿' : 'View ﹀'}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text variant="bodyBold" color={t.colors.sageDeep}>
+                        {expandedDate === iso ? 'Hide' : 'View'}
+                      </Text>
+                      <Chevron expanded={expandedDate === iso} />
+                    </View>
                   </View>
                 </Pressable>
                 {expandedDate === iso && (
@@ -234,5 +241,21 @@ export default function PlanScreen() {
         </View>
       )}
     </Screen>
+  );
+}
+
+function Chevron({ expanded }: { expanded: boolean }) {
+  const t = useTheme();
+  return (
+    <Svg width={16} height={16} viewBox="0 0 16 16" accessibilityElementsHidden>
+      <Path
+        d={expanded ? 'M3 10 L8 5 L13 10' : 'M3 6 L8 11 L13 6'}
+        fill="none"
+        stroke={t.colors.sageDeep}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
   );
 }

@@ -72,6 +72,9 @@ export default function RoomScreen() {
     <Screen>
       <Text variant="display">Your room</Text>
       <Text variant="body" color={t.colors.sub} style={{ marginTop: 4 }}>
+        A visual reflection of Today — completed tasks brighten it.
+      </Text>
+      <Text variant="caption" color={t.colors.sub} style={{ marginTop: 3 }}>
         {TIME_NOTE[state]}
       </Text>
 

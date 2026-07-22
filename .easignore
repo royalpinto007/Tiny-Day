@@ -40,4 +40,3 @@ docs/screens/
 
 # Git metadata is not needed by the remote builder
 .git/
-.gitignore

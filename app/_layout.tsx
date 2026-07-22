@@ -5,8 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useFonts, Quicksand_500Medium, Quicksand_600SemiBold, Quicksand_700Bold } from '@expo-google-fonts/quicksand';
-import { Karla_400Regular, Karla_600SemiBold, Karla_700Bold } from '@expo-google-fonts/karla';
+import { useFonts } from 'expo-font';
 import { ThemeProvider, useTheme } from '../theme';
 import { ToastProvider } from '../components/Toast';
 import { useSettings } from '../lib/store/settings';
@@ -55,12 +54,11 @@ export default function RootLayout() {
   const scheme = useColorScheme();
   const rootBg = scheme === 'dark' ? '#26232A' : '#FAF6F0';
   const [fontsLoaded, fontError] = useFonts({
-    Quicksand_500Medium,
-    Quicksand_600SemiBold,
-    Quicksand_700Bold,
-    Karla_400Regular,
-    Karla_600SemiBold,
-    Karla_700Bold,
+    Quicksand_600SemiBold: require('@expo-google-fonts/quicksand/600SemiBold/Quicksand_600SemiBold.ttf'),
+    Quicksand_700Bold: require('@expo-google-fonts/quicksand/700Bold/Quicksand_700Bold.ttf'),
+    Karla_400Regular: require('@expo-google-fonts/karla/400Regular/Karla_400Regular.ttf'),
+    Karla_600SemiBold: require('@expo-google-fonts/karla/600SemiBold/Karla_600SemiBold.ttf'),
+    Karla_700Bold: require('@expo-google-fonts/karla/700Bold/Karla_700Bold.ttf'),
   });
   const ready = fontsLoaded || !!fontError;
 
