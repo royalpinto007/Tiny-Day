@@ -247,12 +247,13 @@ function ReminderOption({ label, selected, onPress }: { label: string; selected:
   );
 }
 
-function TimeChoiceModal({ visible, date, selected, onClose, onSelect }: {
+export function TimeChoiceModal({ visible, date, selected, onClose, onSelect, allowAnyTime = true }: {
   visible: boolean;
   date: string;
   selected: number | null;
   onClose: () => void;
   onSelect: (minutes: number | null) => void;
+  allowAnyTime?: boolean;
 }) {
   const t = useTheme();
   const times = useMemo(() => {
@@ -290,7 +291,7 @@ function TimeChoiceModal({ visible, date, selected, onClose, onSelect }: {
             columnWrapperStyle={{ gap: 8 }}
             contentContainerStyle={{ gap: 8, paddingBottom: t.spacing.xl }}
             keyboardShouldPersistTaps="handled"
-            ListHeaderComponent={(
+            ListHeaderComponent={allowAnyTime ? (
               <Pressable
                 accessibilityRole="radio"
                 accessibilityState={{ selected: selected == null }}
@@ -299,8 +300,8 @@ function TimeChoiceModal({ visible, date, selected, onClose, onSelect }: {
               >
                 <Text variant="bodyBold" color={selected == null ? t.colors.onSage : t.colors.sub}>Any time</Text>
               </Pressable>
-            )}
-            ListEmptyComponent={<Text variant="body" color={t.colors.sub} center>No future time remains today. Choose another date or Any time.</Text>}
+            ) : null}
+            ListEmptyComponent={<Text variant="body" color={t.colors.sub} center>No future time remains today. Choose another date.</Text>}
             renderItem={({ item }) => {
               const active = selected === item;
               return (
@@ -321,7 +322,7 @@ function TimeChoiceModal({ visible, date, selected, onClose, onSelect }: {
   );
 }
 
-function ScheduleField({ label, value, accessibilityLabel, onPress }: {
+export function ScheduleField({ label, value, accessibilityLabel, onPress }: {
   label: string;
   value: string;
   accessibilityLabel: string;
@@ -350,7 +351,7 @@ function ScheduleField({ label, value, accessibilityLabel, onPress }: {
   );
 }
 
-function dateButtonLabel(iso: string): string {
+export function dateButtonLabel(iso: string): string {
   if (iso === todayISO()) return 'Today';
   const date = new Date(`${iso}T12:00:00`);
   return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });

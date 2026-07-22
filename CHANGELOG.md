@@ -6,6 +6,9 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ## [Unreleased]
 
+- Replaced the one-tap “move to tomorrow” task action with an explicit rescheduling sheet that requires a valid date and future time.
+- Completed tasks whose scheduled slot has passed now explain that they must be rescheduled before becoming active again, instead of offering a misleading “Mark not done” action.
+
 ### Added
 
 - Explicit calendar-date and time pickers in New Task, allowing tasks to be

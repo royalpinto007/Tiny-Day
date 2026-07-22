@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '../../components/Screen';
@@ -8,8 +8,9 @@ import { Button } from '../../components/Button';
 import { CategoryChip, PriorityChip, StatusChip } from '../../components/chips';
 import { useTheme } from '../../theme';
 import { useTasks } from '../../lib/store/tasks';
-import { addDaysISO, durationLabel, minToLabel, todayISO } from '../../lib/types';
+import { durationLabel, minToLabel, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
+import { RescheduleSheet } from '../../components/RescheduleSheet';
 
 export default function TaskDetailsScreen() {
   const t = useTheme();
@@ -21,6 +22,7 @@ export default function TaskDetailsScreen() {
   const setStatus = useTasks((s) => s.setStatus);
   const removeTask = useTasks((s) => s.removeTask);
   const setFocusTask = useTasks((s) => s.setFocusTask);
+  const [rescheduleVisible, setRescheduleVisible] = useState(false);
 
   if (!task) {
     return (
@@ -32,6 +34,13 @@ export default function TaskDetailsScreen() {
   }
 
   const doneSubs = task.subtasks.filter((s) => s.done).length;
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const slotHasPassed = task.date != null && (
+    task.date < todayISO()
+    || (task.date === todayISO() && task.startMin != null && task.startMin + task.durationMin <= nowMin)
+  );
+  const expiredCompletion = task.status === 'completed' && slotHasPassed;
 
   return (
     <Screen>
@@ -116,25 +125,28 @@ export default function TaskDetailsScreen() {
           router.push('/focus');
         }}
       />
+      {expiredCompletion && (
+        <Text variant="caption" color={t.colors.sub} center style={{ marginTop: t.spacing.md }}>
+          This completed time has passed. Reschedule it to work on it again.
+        </Text>
+      )}
       <View style={{ flexDirection: 'row', gap: t.spacing.md, marginTop: t.spacing.md }}>
-        <Button
-          title={task.status === 'completed' ? 'Mark not done' : 'Mark complete'}
-          kind="secondary"
-          style={{ flex: 1 }}
-          onPress={() => {
-            setStatus(task.id, task.status === 'completed' ? 'not_started' : 'completed');
-            router.back();
-          }}
-        />
+        {!expiredCompletion && (
+          <Button
+            title={task.status === 'completed' ? 'Mark not done' : 'Mark complete'}
+            kind="secondary"
+            style={{ flex: 1 }}
+            onPress={() => {
+              setStatus(task.id, task.status === 'completed' ? 'not_started' : 'completed');
+              router.back();
+            }}
+          />
+        )}
         <Button
           title="Reschedule"
           kind="secondary"
           style={{ flex: 1 }}
-          onPress={() => {
-            updateTask(task.id, { date: addDaysISO(todayISO(), 1), status: 'rescheduled', startMin: null });
-            toast.show({ message: 'Moved to tomorrow. Plans changed. That’s okay.' });
-            router.back();
-          }}
+          onPress={() => setRescheduleVisible(true)}
         />
       </View>
       <Button
@@ -145,6 +157,17 @@ export default function TaskDetailsScreen() {
         onPress={() => {
           removeTask(task.id);
           router.back();
+        }}
+      />
+      <RescheduleSheet
+        visible={rescheduleVisible}
+        currentDate={task.date}
+        currentTime={task.startMin}
+        onClose={() => setRescheduleVisible(false)}
+        onConfirm={(date, startMin) => {
+          updateTask(task.id, { date, startMin, status: 'rescheduled', completedAt: undefined });
+          setRescheduleVisible(false);
+          toast.show({ message: `Rescheduled for ${date === todayISO() ? 'today' : date} at ${minToLabel(startMin)}.` });
         }}
       />
     </Screen>
