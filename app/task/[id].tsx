@@ -11,6 +11,7 @@ import { useTasks } from '../../lib/store/tasks';
 import { durationLabel, minToLabel, todayISO } from '../../lib/types';
 import { useToast } from '../../components/Toast';
 import { RescheduleSheet } from '../../components/RescheduleSheet';
+import { EditTaskSheet } from '../../components/EditTaskSheet';
 
 export default function TaskDetailsScreen() {
   const t = useTheme();
@@ -23,6 +24,7 @@ export default function TaskDetailsScreen() {
   const removeTask = useTasks((s) => s.removeTask);
   const setFocusTask = useTasks((s) => s.setFocusTask);
   const [rescheduleVisible, setRescheduleVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
 
   if (!task) {
     return (
@@ -125,6 +127,12 @@ export default function TaskDetailsScreen() {
           router.push('/focus');
         }}
       />
+      <Button
+        title="Edit task"
+        kind="secondary"
+        style={{ marginTop: t.spacing.md }}
+        onPress={() => setEditVisible(true)}
+      />
       {expiredCompletion && (
         <Text variant="caption" color={t.colors.sub} center style={{ marginTop: t.spacing.md }}>
           This completed time has passed. Reschedule it to work on it again.
@@ -168,6 +176,16 @@ export default function TaskDetailsScreen() {
           updateTask(task.id, { date, startMin, status: 'rescheduled', completedAt: undefined });
           setRescheduleVisible(false);
           toast.show({ message: `Rescheduled for ${date === todayISO() ? 'today' : date} at ${minToLabel(startMin)}.` });
+        }}
+      />
+      <EditTaskSheet
+        visible={editVisible}
+        task={task}
+        onClose={() => setEditVisible(false)}
+        onSave={(patch) => {
+          updateTask(task.id, patch);
+          setEditVisible(false);
+          toast.show({ message: 'Task updated.' });
         }}
       />
     </Screen>
