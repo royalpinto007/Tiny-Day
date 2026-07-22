@@ -6,7 +6,8 @@ Tiny Day is currently maintained on the latest published release only.
 
 | Version | Supported |
 | --- | --- |
-| 1.0.x | Yes |
+| 1.1.x | Yes |
+| 1.0.x | No |
 | Earlier versions | No |
 
 ## Reporting a vulnerability

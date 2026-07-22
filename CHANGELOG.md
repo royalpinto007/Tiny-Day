@@ -6,6 +6,12 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ## [Unreleased]
 
+### Documentation
+
+- Updated README, architecture, Play Store preparation, and security-support
+  documentation for the released v1.1.0 navigation, task flows, APK, and
+  supported version.
+
 ## [1.1.0] - 2026-07-22
 
 - Replaced the one-tap “move to tomorrow” task action with an explicit rescheduling sheet that requires a valid date and future time.

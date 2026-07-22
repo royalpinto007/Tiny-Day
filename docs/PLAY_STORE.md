@@ -41,7 +41,7 @@ behavior, permissions, SDKs, or data handling changes.
 >
 > FOCUS ON WHAT IS NEXT
 >
-> See what is happening now, what comes next, and which important tasks still need attention. Start a quiet focus timer, pause when needed, add ten minutes, or mark the task complete.
+> Use the Room view to see what is happening now and what comes next. Start a quiet focus timer, pause when needed, add ten minutes, or mark the task complete. Today keeps the full timeline—including finished work—in one calm view.
 >
 > REPLAN WITHOUT GUILT
 >
@@ -136,8 +136,8 @@ focused on the actual interface.
 
 | Order | Screen | Suggested caption | Alt text |
 | --- | --- | --- | --- |
-| 1 | Today | A calmer view of today | Today dashboard showing the current task, next task, progress, and illustrated room. |
-| 2 | Generated timeline | Turn a brain dump into a plan | Planned timeline with tasks, protected breaks, and open time. |
+| 1 | Today | A calmer view of today | Today screen showing the illustrated room and complete daily timeline, including finished tasks. |
+| 2 | Room | Focus on what is now | Room screen showing compact Now and Next actions beside visual progress. |
 | 3 | Replan comparison | Plans changed. Your day can too. | Before-and-after schedule showing gentle changes to an interrupted day. |
 | 4 | Focus mode | One thing at a time | Focus timer for the current task with pause, extend, and complete controls. |
 | 5 | Evening review | End the day without guilt | Evening reflection with mood selection and a gentle progress summary. |
@@ -150,22 +150,38 @@ screenshots.
 
 ## Release checklist
 
-### Prepared production artifact
+### Current GitHub APK
+
+- Release: <https://github.com/royalpinto007/Tiny-Day/releases/tag/v1.1.0>
+- Source commit: `f5ccfb8568d162578935f84ad6322f56b51cf051`
+- Application ID: `com.tinyday.app`
+- Version: `1.1.0` (`versionCode` 3)
+- Android SDK: minimum 24, target 36
+- Architecture: ARM64
+- APK size: 35,056,164 bytes (33.4 MB)
+- SHA-256: `3c0f684eda99d2f8f38db81af9ae3aba42c74f032f55ea7242fbf08027cb3ee9`
+
+The APK was upgrade-, persistence-, signature-, and device-tested on two
+physical Android phones. It is for direct GitHub distribution and cannot be
+uploaded in place of an AAB to Google Play.
+
+### Previous Play bundle — rebuild before submission
 
 - EAS build: <https://expo.dev/accounts/royalpinto007/projects/tiny-day/builds/5d81e850-3420-4d95-bebf-3181004fd963>
 - AAB: <https://expo.dev/artifacts/eas/VoN-qMZrglUsqpuGuoRnDP2irLrvxvz7k52v5t1QWZs.aab>
 - Source commit: `a7338353ba052a39fdddcc7dc9812ca266e9671f`
 - Application ID: `com.tinyday.app`
-- Version: `1.0.0` (`versionCode` 2)
+- Version: `1.0.0` (`versionCode` 2; superseded by v1.1.0)
 - Android SDK: minimum 24, target 36
 - SHA-256: `ccd57ea7585a7bd0d4087869269d732ee953b8afe312ed51823e5a8d8076a457`
 
-This bundle is prepared for Play closed testing. An AAB is not directly
-installable; Google Play generates optimized APKs for enrolled devices.
+This older bundle predates the v1.1.0 tester-feedback changes. Build a new
+production AAB before the next Play upload. An AAB is not directly installable;
+Google Play generates optimized APKs for enrolled devices.
 
-- [ ] Incorporate closed-test feedback and rerun CI.
-- [ ] Increment the user-facing version for changes after `v1.0.0`.
-- [ ] Run `npm run typecheck` and `npx expo-doctor`.
+- [x] Incorporate the first closed-test feedback cycle and rerun validation.
+- [x] Increment the user-facing version to `v1.1.0` and Android build to 3.
+- [x] Run `npm run typecheck` and `npx expo-doctor` (20/20).
 - [ ] Build with `npx eas-cli build -p android --profile production`.
 - [ ] Confirm target API, package name, version code, and signing certificate.
 - [ ] Upload the AAB to the intended Play testing track.

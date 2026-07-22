@@ -9,7 +9,7 @@ There is no application backend.
 | Path | Responsibility |
 | --- | --- |
 | `app/` | File-based routes and screen-level user flows |
-| `app/(tabs)/` | Today, Plan, Room, and Profile navigation |
+| `app/(tabs)/` | Today, Room, Plan, and Profile navigation |
 | `components/` | Reusable UI, controls, task cards, sheets, and the Room scene |
 | `lib/store/` | Persisted task and settings state |
 | `lib/` | Parsing, scheduling, repair rules, formatting, and notifications |
@@ -37,6 +37,12 @@ routes a new user into onboarding and a configured user into the tab shell.
 Focused flows—planning, focus, replanning, evening review, task details, and
 notification settings—live as top-level routes around that shell.
 
+The phone tab order is Today → Room → quick add → Plan → Profile. Today owns
+the room overview and full daily timeline; Room owns the compact Now/Next
+execution controls; Plan owns future-day, week, backlog, and routine work.
+Task details opens reusable edit and reschedule sheets so mutations update the
+same persisted task ID, including when a focus session is active.
+
 ## Design principles
 
 - Offline and useful without registration.
@@ -48,6 +54,8 @@ notification settings—live as top-level routes around that shell.
 ## Builds
 
 Development uses Expo/Metro. Installable Android previews are produced by the
-`preview` profile in `eas.json`; release builds use the `production` profile.
+`preview` profile in `eas.json`; Play Store bundles use the `production`
+profile. GitHub v1.1.0 is a minified, resource-shrunk ARM64 APK signed with the
+same release certificate as v1.0.0 so it can update an existing installation.
 Generated native directories and binary artifacts are intentionally excluded
 from source control and EAS uploads.

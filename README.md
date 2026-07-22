@@ -19,11 +19,15 @@ Tiny Day is a fully offline React Native (Expo) app: no account, no cloud, no an
 
 - **The Room** — a layered SVG scene (window sky, lamp glow, tint overlay, tiny character) with four time states plus a rain variant. It follows the real clock and reflects completion.
 - **Morning planning** — brain-dump text is parsed into task cards (name, category, duration, priority, time heuristics), then a priority and energy pass builds a timeline with protected meals and free time kept open on purpose.
-- **Daily loop** — Now/Next/Important cards, a real countdown focus timer (pause / +10 min / complete), quick-add with natural-language parsing ("call the framer tomorrow at 4").
+- **Today timeline** — Today keeps the room overview and the complete daily timeline together, including finished tasks, free time, progress, and gentle replanning.
+- **Room actions** — compact Now and Next cards live beside the room, with direct Focus and Done actions without crowding the Today landing page.
+- **Task control** — quick-add accepts natural language or explicit future date/time choices; existing tasks can be edited in place or rescheduled to a specific future date and time.
+- **Focus** — a real countdown timer with pause, +10 minutes, completion, and continuity when the attached task is edited.
 - **"My day went wrong"** — pick what changed (woke late, ran long, too tired, urgent thing); Tiny Day moves optionals, shortens flexibles, protects ▲ musts and fixed appointments, inserts rest, and shows the changes before applying. *"Your day has been repaired."*
 - **Evening** — mood check-in, gentle stats, leftovers triage (tomorrow / backlog / let go — never auto-carry). *"You did enough for today."*
 - **Notifications** — ▲ must = remind + one follow-up · ● should = one reminder · ○ optional = silent. Quiet hours, privacy mode ("Important reminder due now"), and at most one gentle replan prompt. No streaks, no guilt.
-- **Plan tab** — Tomorrow, Week, Backlog, and a Routine builder with per-day scheduling.
+- **Plan tab** — Tomorrow, expandable Week days, Backlog, and a Routine builder with per-day scheduling and task recovery.
+- **Testing data** — Profile can load and remove reversible sample tasks, routines, and recent-day history without touching personal content.
 - **Accessibility** — 44px+ touch targets, dynamic type, reduce-motion and high-contrast toggles, screen-reader labels, and priority always shown as glyph + label, never color alone. No haptics: the app never vibrates.
 - **Tablet** — sidebar navigation and wide layouts at ≥768px.
 
@@ -70,7 +74,11 @@ npm run typecheck     # tsc --noEmit
 Download the APK from the [latest GitHub release](https://github.com/royalpinto007/Tiny-Day/releases/latest),
 allow installation from your browser or file manager when Android asks, and
 open the downloaded file. Tiny Day currently targets Android 7.0 (API 24) and
-newer.
+newer. The v1.1.0 APK is ARM64-only, which covers most modern Android phones
+and tablets; a 32-bit-only device needs a separately configured build.
+
+Current release: **v1.1.0** (`versionCode` 3), approximately 33.4 MB. Its
+checksum and device-test notes are published on the release page.
 
 ## Build an Android preview
 
