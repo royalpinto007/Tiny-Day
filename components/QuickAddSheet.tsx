@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Keyboard, Modal, Pressable, View } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme';
 import { BottomSheet } from './BottomSheet';
 import { Text } from './Text';
@@ -280,8 +281,26 @@ export function TimeChoiceModal({ visible, date, selected, onClose, onSelect, al
                 {date === todayISO() ? 'Only remaining times today are shown.' : dateButtonLabel(date)}
               </Text>
             </View>
-            <Pressable accessibilityRole="button" onPress={onClose} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-              <Text variant="title" color={t.colors.sub}>×</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close time picker"
+              hitSlop={4}
+              onPress={onClose}
+              style={({ pressed }) => ({
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: t.colors.surfaceAlt,
+                borderWidth: 1,
+                borderColor: t.colors.border,
+                opacity: pressed ? 0.72 : 1,
+              })}
+            >
+              <Svg width={18} height={18} viewBox="0 0 18 18" fill="none">
+                <Path d="M4.5 4.5 13.5 13.5M13.5 4.5 4.5 13.5" stroke={t.colors.sub} strokeWidth={1.8} strokeLinecap="round" />
+              </Svg>
             </Pressable>
           </View>
           <FlatList
