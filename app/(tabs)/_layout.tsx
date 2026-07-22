@@ -12,8 +12,8 @@ export default function TabsLayout() {
       screenOptions={{ headerShown: false, tabBarPosition: isTablet ? 'left' : 'bottom' }}
     >
       <Tabs.Screen name="today" options={{ title: 'Today' }} />
-      <Tabs.Screen name="plan" options={{ title: 'Plan' }} />
       <Tabs.Screen name="room" options={{ title: 'Room' }} />
+      <Tabs.Screen name="plan" options={{ title: 'Plan' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );

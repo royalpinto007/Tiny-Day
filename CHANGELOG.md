@@ -11,6 +11,7 @@ All notable changes to Tiny Day are documented here. The format follows
 - Replaced the font-dependent time-picker close glyph with a centered, touch-friendly vector close button.
 - Embedded the complete daily timeline—including finished tasks—directly on Today, replacing the separate timeline, reminder, and evening check-in shortcut row.
 - Added an in-place task editor to task details so active tasks can be renamed and their schedule, duration, priority, reminder, flexibility, and notes can be updated without breaking focus state.
+- Simplified Today to the room overview and timeline, moved compact Now/Next actions into Room, placed progress/replan after the timeline, and reordered navigation to Today, Room, Plan, Profile.
 
 ### Added
 

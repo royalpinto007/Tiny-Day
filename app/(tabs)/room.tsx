@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '../../components/Screen';
 import { Text } from '../../components/Text';
 import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { PriorityChip } from '../../components/chips';
 import { Room, RoomTimeState, useLiveRoomState } from '../../components/Room';
 import { useIsTablet, useTheme } from '../../theme';
 import { useTasks, tasksForDate } from '../../lib/store/tasks';
 import { addDaysISO, minToLabel, Mood, todayISO } from '../../lib/types';
+import { useToast } from '../../components/Toast';
 
 /** One quiet line about where the day stands — never a nag, never a score. */
 function statusLine(total: number, done: number, state: RoomTimeState): string {
@@ -39,23 +42,22 @@ const MOOD_LABEL: Record<Mood, string> = {
 export default function RoomScreen() {
   const t = useTheme();
   const router = useRouter();
+  const toast = useToast();
   const isTablet = useIsTablet();
   const state = useLiveRoomState();
   const tasks = useTasks((s) => s.tasks);
   const snapshots = useTasks((s) => s.snapshots);
+  const setStatus = useTasks((s) => s.setStatus);
+  const setFocusTask = useTasks((s) => s.setFocusTask);
 
   const today = useMemo(() => tasksForDate(tasks, todayISO()), [tasks]);
   const done = today.filter((x) => x.status === 'completed').length;
   const completion = today.length ? done / today.length : 0;
 
   const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-  const next = today.find(
-    (x) =>
-      x.status !== 'completed' &&
-      x.status !== 'skipped' &&
-      x.status !== 'rescheduled' &&
-      (x.startMin == null || x.startMin >= nowMin)
-  );
+  const open = today.filter((x) => x.status !== 'completed' && x.status !== 'skipped' && x.status !== 'rescheduled');
+  const current = open.find((x) => x.startMin != null && x.startMin <= nowMin && x.startMin + x.durationMin > nowMin) ?? open[0];
+  const next = open.find((x) => x !== current && (x.startMin == null || x.startMin >= nowMin));
 
   // The six days before today, oldest first — only days actually closed out.
   const past = useMemo(() => {
@@ -111,11 +113,35 @@ export default function RoomScreen() {
         </>
       )}
 
+      {current && (
+        <Card style={{ marginTop: t.spacing.lg, padding: t.spacing.md }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.spacing.sm }}>
+            <Text variant="label" color={t.colors.sageDeep}>Now</Text>
+            <View style={{ flex: 1 }} />
+            <PriorityChip priority={current.priority} />
+          </View>
+          <Pressable accessibilityRole="button" onPress={() => router.push(`/task/${current.id}`)} style={{ marginTop: 4 }}>
+            <Text variant="cardTitle" numberOfLines={1}>{current.name}</Text>
+            <Text variant="caption" color={t.colors.sub}>{current.startMin != null ? `${minToLabel(current.startMin)} · ` : ''}{current.durationMin} min</Text>
+          </Pressable>
+          <View style={{ flexDirection: 'row', gap: t.spacing.sm, marginTop: t.spacing.sm }}>
+            <Button title="Focus" compact style={{ flex: 1 }} onPress={() => { setFocusTask(current.id); router.push('/focus'); }} />
+            <Button title="Done" compact kind="secondary" style={{ flex: 1 }} onPress={() => {
+              setStatus(current.id, 'completed');
+              toast.show({ message: 'Nice — one more thing done.', actionLabel: 'Undo', onAction: () => setStatus(current.id, 'not_started') });
+            }} />
+          </View>
+        </Card>
+      )}
+
       {next && (
-        <Text variant="body" color={t.colors.sub} style={{ marginTop: t.spacing.lg }}>
-          Next up: <Text variant="bodyBold">{next.name}</Text>
-          {next.startMin != null ? ` · ${minToLabel(next.startMin)}` : ''}
-        </Text>
+        <Pressable accessibilityRole="button" onPress={() => router.push(`/task/${next.id}`)}>
+          <Card style={{ marginTop: t.spacing.sm, padding: t.spacing.md, flexDirection: 'row', alignItems: 'center', gap: t.spacing.sm }}>
+            <Text variant="label" color={t.colors.blue}>Next</Text>
+            <Text variant="taskTitle" numberOfLines={1} style={{ flex: 1 }}>{next.name}</Text>
+            {next.startMin != null && <Text variant="caption" color={t.colors.sub}>{minToLabel(next.startMin)}</Text>}
+          </Card>
+        </Pressable>
       )}
 
       {today.length === 0 && (
