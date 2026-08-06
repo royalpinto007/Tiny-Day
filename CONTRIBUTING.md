@@ -77,3 +77,19 @@ development is usually sufficient.
 
 By contributing, you agree that your contribution is licensed under the
 project's [MIT License](LICENSE).
+
+## Claiming an issue
+
+Want to pick something up? Just comment on the issue saying you'd like to work on
+it. A workflow adds the `claimed` label so nobody else duplicates your effort.
+
+Two small rules keep things fair:
+
+- **Two open claims per person.** If you already hold two claimed issues, we'll ask
+  you to finish one first so other people get a turn. Comment again once one lands
+  and the next is yours.
+- **Claims go stale after 14 days.** If a claimed issue sees no activity for two
+  weeks, the label is removed and it goes back in the pool. No hard feelings, and
+  you can always claim it again.
+
+No pressure on timelines otherwise. Ask questions in the issue thread any time.
