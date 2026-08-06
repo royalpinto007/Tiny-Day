@@ -26,6 +26,9 @@ const DURATION_DEFAULTS: Partial<Record<Category, number>> = {
   meal: 45, break: 15, errand: 40, appointment: 60, health: 60, travel: 45,
 };
 
+const MUST_HINTS = /\b(must|urgent|important|deadline|before)\b/gi;
+const OPTIONAL_HINTS = /\b(maybe|if i can|optional|sometime|someday)\b/gi;
+
 export function parseTaskLine(raw: string, defaultDate = todayISO()): ParsedTask {
   let text = raw.trim();
   let date = defaultDate;
@@ -69,10 +72,12 @@ export function parseTaskLine(raw: string, defaultDate = todayISO()): ParsedTask
   }
 
   // priority hints
-  if (/\b(must|urgent|important|deadline|before)\b/i.test(text)) priority = 'must';
-  else if (/\b(maybe|if i can|optional|sometime|someday)\b/i.test(text)) {
+  if (MUST_HINTS.test(text)) {
+    priority = 'must';
+    text = text.replace(MUST_HINTS, '').trim();
+  } else if (OPTIONAL_HINTS.test(text)) {
     priority = 'optional';
-    text = text.replace(/\b(maybe|if i can|optional|sometime|someday)\b/gi, '').trim();
+    text = text.replace(OPTIONAL_HINTS, '').trim();
   }
 
   const name = text
