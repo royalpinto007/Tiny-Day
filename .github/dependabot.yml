@@ -18,6 +18,11 @@ updates:
           - "@react-native*"
       development-dependencies:
         dependency-type: development
+    ignore:
+      # Expo SDK pins the supported TypeScript range and expo-doctor fails the
+      # build when we run ahead of it. Let the SDK bump lead this one.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
