@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -22,6 +23,7 @@ function AppStack() {
   const quietEndMin = useSettings((s) => s.quietEndMin);
   const privacyMode = useSettings((s) => s.privacyMode);
   const notificationsGranted = useSettings((s) => s.notificationsGranted);
+  const setSettings = useSettings((s) => s.set);
 
   useEffect(() => {
     seedRoutines(todayISO());
@@ -32,10 +34,22 @@ function AppStack() {
     const id = setTimeout(() => {
       syncTodayReminders(tasks, {
         notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted,
+      }).then(async ({ failed }) => {
+        if (failed === 0 || !notificationsGranted) return;
+        // Scheduling failed while we believed permission was granted — the
+        // most common cause is the user revoking it in OS settings after the
+        // fact. Re-check and correct the stale flag so the notifications
+        // settings screen reflects reality instead of a silent no-op.
+        try {
+          const { granted } = await Notifications.getPermissionsAsync();
+          if (!granted) setSettings({ notificationsGranted: false });
+        } catch (error) {
+          console.warn('[notifications] failed to re-check permission status', error);
+        }
       });
     }, 0);
     return () => clearTimeout(id);
-  }, [tasks, notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted]);
+  }, [tasks, notificationLevel, quietStartMin, quietEndMin, privacyMode, notificationsGranted, setSettings]);
 
   return (
     <ToastProvider>
