@@ -319,7 +319,7 @@ export function TimeChoiceModal({ visible, date, selected, onClose, onSelect, al
               >
                 <Text variant="bodyBold" color={selected == null ? t.colors.onSage : t.colors.sub}>Any time</Text>
               </Pressable>
-            ) : null}
+            ) : undefined}
             ListEmptyComponent={<Text variant="body" color={t.colors.sub} center>No future time remains today. Choose another date.</Text>}
             renderItem={({ item }) => {
               const active = selected === item;
