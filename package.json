@@ -7,7 +7,7 @@
     "@expo-google-fonts/quicksand": "^0.4.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.1.0",
-    "expo": "~57.0.22",
+    "expo": "~57.0.24",
     "expo-build-properties": "~57.0.17",
     "expo-calendar": "~57.0.3",
     "expo-constants": "~57.0.18",
