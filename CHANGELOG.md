@@ -6,6 +6,10 @@ All notable changes to Tiny Day are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Free time on Today and the timeline now opens up when you complete a task, and it no longer reports a free slot that runs past bedtime.
+
 ### Documentation
 
 - Updated README, architecture, Play Store preparation, and security-support

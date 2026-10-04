@@ -55,9 +55,18 @@ export function buildDayTimeline(tasks: Task[], wakeMin: number, sleepMin: numbe
   return placements;
 }
 
+/**
+ * A scheduled task holds its slot until it is completed or skipped. A
+ * rescheduled task keeps its slot: the reschedule sheet can move it to a later
+ * time on the same day.
+ */
+export function occupiesTime(task: Task): boolean {
+  return task.startMin != null && task.status !== 'completed' && task.status !== 'skipped';
+}
+
 export function findConflicts(tasks: Task[]): Conflict[] {
   const scheduled = tasks
-    .filter((t) => t.startMin != null && t.status !== 'completed' && t.status !== 'skipped')
+    .filter(occupiesTime)
     .sort((a, b) => a.startMin! - b.startMin!);
   const out: Conflict[] = [];
   for (let i = 0; i < scheduled.length - 1; i++) {
@@ -76,13 +85,14 @@ export function findConflicts(tasks: Task[]): Conflict[] {
 
 export function freeSlots(tasks: Task[], wakeMin: number, sleepMin: number, minLen = 30): [number, number][] {
   const busy = tasks
-    .filter((t) => t.startMin != null && t.status !== 'skipped')
+    .filter(occupiesTime)
     .map((t) => [t.startMin!, t.startMin! + t.durationMin] as [number, number])
     .sort((a, b) => a[0] - b[0]);
   const slots: [number, number][] = [];
   let cursor = wakeMin;
   for (const [s, e] of busy) {
-    if (s - cursor >= minLen) slots.push([cursor, s]);
+    const end = Math.min(s, sleepMin);
+    if (end - cursor >= minLen) slots.push([cursor, end]);
     cursor = Math.max(cursor, e);
   }
   if (sleepMin - cursor >= minLen) slots.push([cursor, sleepMin]);
